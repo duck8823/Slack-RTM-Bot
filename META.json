@@ -1,0 +1,77 @@
+{
+   "abstract" : "This make slack bot with Real Time Messaging(RTM) API.",
+   "author" : [
+      "Shunsuke Maeda"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Minilla/v3.0.2, CPAN::Meta::Converter version 2.150005",
+   "license" : [
+      "unknown"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Slack-RTM-Bot",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "xt",
+         "inc",
+         "share",
+         "eg",
+         "examples",
+         "author",
+         "builder"
+      ]
+   },
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "Module::Build::Tiny" : "0.035"
+         }
+      },
+      "develop" : {
+         "requires" : {
+            "Test::CPAN::Meta" : "0",
+            "Test::MinimumVersion::Fast" : "0.04",
+            "Test::PAUSE::Permissions" : "0.04",
+            "Test::Pod" : "1.41",
+            "Test::Spellunker" : "v0.2.7"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Encode" : "0",
+            "HTTP::Request::Common" : "0",
+            "IO::Socket::SSL" : "0",
+            "LWP::UserAgent" : "0",
+            "Protocol::WebSocket::Client" : "0",
+            "parent" : "0",
+            "perl" : "5.008001"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Test::More" : "0.98"
+         }
+      }
+   },
+   "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/duck8823/Slack-RTM-Bot/issues"
+      },
+      "homepage" : "https://github.com/duck8823/Slack-RTM-Bot",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/duck8823/Slack-RTM-Bot.git",
+         "web" : "https://github.com/duck8823/Slack-RTM-Bot"
+      }
+   },
+   "version" : "0.01",
+   "x_contributors" : [
+      "maeda <duck8823@gmail.com>"
+   ],
+   "x_serialization_backend" : "JSON::PP version 2.27300"
+}

@@ -1,0 +1,4 @@
+name = "Slack-RTM-Bot"
+# badges = ["travis"]
+module_maker="ModuleBuildTiny"
+
