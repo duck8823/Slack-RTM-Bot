@@ -1,5 +1,5 @@
 {
-   "abstract" : "This make slack bot with Real Time Messaging(RTM) API.",
+   "abstract" : "This is a perl module helping to create slack bot with Real Time Messaging(RTM) API.",
    "author" : [
       "Shunsuke Maeda"
    ],
@@ -45,6 +45,7 @@
             "Encode" : "0",
             "HTTP::Request::Common" : "0",
             "IO::Socket::SSL" : "0",
+            "JSON" : "0",
             "LWP::UserAgent" : "0",
             "Protocol::WebSocket::Client" : "0",
             "parent" : "0",
@@ -53,6 +54,7 @@
       },
       "test" : {
          "requires" : {
+            "Test::Exception" : "0",
             "Test::More" : "0.98"
          }
       }

@@ -6,9 +6,6 @@ use warnings;
 
 use Slack::RTM::Bot::Client;
 
-use parent 'Exporter';
-our @EXPORT = qw(start_RTM stop_RTM add_action);
-
 our $VERSION = "0.01";
 
 sub new {
@@ -110,7 +107,7 @@ __END__
 
 =head1 NAME
 
-Slack::RTM::Bot - This make slack bot with Real Time Messaging(RTM) API.
+Slack::RTM::Bot - This is a perl module helping to create slack bot with Real Time Messaging(RTM) API.
 
 =head1 SYNOPSIS
 
@@ -135,7 +132,7 @@ Slack::RTM::Bot - This make slack bot with Real Time Messaging(RTM) API.
     );
 
     $bot->say({
-        channel => '@direct_user',
+        channel => '@username',
         text    => 'hello, world.'
     });
 
@@ -151,12 +148,12 @@ The C<$token> is the slack API token.
 
 =head2 add_action
 
-  method add_action(\%event, $subroutine)
+  method add_action(\%event, $callback)
 
-C<$subroutine> will be executed when it fitted the C<\%event> conditions.
+C<$callback> will be executed when it fitted the C<\%event> conditions.
 The C<\%event> key is equal to a key of json received from slack, and value is estimated as regex.
 
-C<$subroutine> is handed JSON object of message received from Slack.
+C<$callback> is handed JSON object of message received from Slack.
 
 =head2 start_RTM
 

@@ -13,7 +13,7 @@ unless ($token) {
 	plan skip_all => 'No SLACK_API_TOKEN configured for testing.';
 }
 
-my $tmp = "./tmp";
+my $tmp = "./test.tmp";
 
 my $bot = Slack::RTM::Bot->new(
 	token => $token
@@ -50,7 +50,7 @@ $bot->say(
 	text    => 'return'
 );
 
-sleep 10;
+sleep 3;
 
 open TMP, "$tmp" or fail $!;
 my $result = <TMP>;

@@ -1,6 +1,7 @@
 requires 'Encode';
 requires 'HTTP::Request::Common';
 requires 'IO::Socket::SSL';
+requires 'JSON';
 requires 'LWP::UserAgent';
 requires 'Protocol::WebSocket::Client';
 requires 'parent';
@@ -11,5 +12,6 @@ on configure => sub {
 };
 
 on test => sub {
+    requires 'Test::Exception';
     requires 'Test::More', '0.98';
 };

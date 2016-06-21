@@ -1,6 +1,6 @@
 # NAME
 
-Slack::RTM::Bot - This make slack bot with Real Time Messaging(RTM) API.
+Slack::RTM::Bot - This is a perl module helping to create slack bot with Real Time Messaging(RTM) API.
 
 # SYNOPSIS
 
@@ -19,13 +19,13 @@ Slack::RTM::Bot - This make slack bot with Real Time Messaging(RTM) API.
 
     $bot->start_RTM;
 
-    $bot->say({
+    $bot->say(
         channel => 'general',
         text    => '<!here> hello, world.'
-    });
+    );
 
     $bot->say({
-        channel => '@direct_user',
+        channel => '@username',
         text    => 'hello, world.'
     });
 
@@ -41,12 +41,12 @@ The `$token` is the slack API token.
 
 ## add\_action
 
-    method add_action(\%event, $subroutine)
+    method add_action(\%event, $callback)
 
-`$subroutine` will be executed when it fitted the `\%event` conditions.
+`$callback` will be executed when it fitted the `\%event` conditions.
 The `\%event` key is equal to a key of json received from slack, and value is estimated as regex.
 
-`$subroutine` is handed JSON object of message received from Slack.
+`$callback` is handed JSON object of message received from Slack.
 
 ## start\_RTM
 
@@ -62,9 +62,9 @@ It stop Real Time Messaging API.
 
 ## say
 
-    method say(\%options)
+    method say(%options)
 
-sent a message to a Slack. The channel name can be used to designate channel.
+It sent a message to a Slack. The channel name can be used to designate channel.
 if you want to send a direct message, let designate the @username as a channel.
 
 # SOURCE CODE
