@@ -2,9 +2,9 @@ requires 'Encode';
 requires 'HTTP::Request::Common';
 requires 'IO::Socket::SSL';
 requires 'JSON';
+requires 'LWP::Protocol::https';
 requires 'LWP::UserAgent';
 requires 'Protocol::WebSocket::Client';
-requires 'parent';
 requires 'perl', '5.008001';
 
 on configure => sub {
