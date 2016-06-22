@@ -8,14 +8,20 @@ use Encode;
 
 use HTTP::Request::Common qw(POST);
 use LWP::UserAgent;
+use LWP::Protocol::https;
 
 use Protocol::WebSocket::Client;
-use IO::Socket::SSL;
+use IO::Socket::SSL qw/SSL_VERIFY_NONE/;
 
 use Slack::RTM::Bot::Information;
 use Slack::RTM::Bot::Response;
 
-my $ua = LWP::UserAgent->new();
+my $ua = LWP::UserAgent->new(
+	ssl_opts => {
+		verify_hostname => 0,
+		SSL_verify_mode => SSL_VERIFY_NONE
+	}
+);
 $ua->agent('Slack::RTM::Bot');
 
 sub new {

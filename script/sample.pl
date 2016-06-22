@@ -6,7 +6,7 @@ use Slack::RTM::Bot;
 use Data::Dumper;
 
 my $bot = Slack::RTM::Bot->new(
-	token => '<API token>'
+	token => $ARGV[0] 
 );
 
 $bot->add_action(
@@ -24,9 +24,5 @@ $bot->say(
 	text    => '<!here> hello, world.'
 );
 
-$bot->say(
-	channel => '@direct',
-	text    => 'hello, world.'
-);
-
+sleep 300;
 $bot->stop_RTM;
