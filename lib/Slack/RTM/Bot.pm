@@ -21,9 +21,11 @@ sub start_RTM {
 	my $self = shift;
 	my $client = $self->_connect;
 
+	my $parent = $$;
+
 	my $pid_1 = fork;
 	unless($pid_1) {
-		while (1) {
+		while (kill 0, $parent) {
 			$client->read;
 			sleep 1;
 		}
@@ -31,21 +33,17 @@ sub start_RTM {
 
 	my $pid_2 = fork;
 	unless($pid_2) {
-		for (my $i = 0; 1; ++$i) {
+		my $i = 0;
+		while (kill 0, $parent) {
 			$client->write(
-				id   => $i,
+				id   => $i++,
 				type => 'ping'
 			);
 			sleep 30;
 		}
 	}
 
-	my $pid_3 = fork;
-	unless($pid_3) {
-		while(1){}
-	}
-
-	$self->{children} = [$pid_1, $pid_2, $pid_3];
+	$self->{children} = [$pid_1, $pid_2];
 }
 
 sub stop_RTM {
@@ -178,11 +176,11 @@ if you want to send a direct message, let designate the @username as a channel.
 
 This is opensource software.
 
-item https://github.com/duck8823/Slack-RTM-Bot
+https://github.com/duck8823/Slack-RTM-Bot
 
 =head2 SEE ALSO
 
-item https://api.slack.com/rtm
+https://api.slack.com/rtm
 
 =head1 LICENSE
 
