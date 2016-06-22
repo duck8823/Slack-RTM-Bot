@@ -2,6 +2,10 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+0.02 2016-06-22T15:55:41Z
+
+    - Fix a bug that child process will be zombie without stop_RTM.
+
 0.01 2016-06-21T22:20:24Z
 
     - original version

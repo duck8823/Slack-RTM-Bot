@@ -71,11 +71,11 @@ if you want to send a direct message, let designate the @username as a channel.
 
 This is opensource software.
 
-item https://github.com/duck8823/Slack-RTM-Bot
+https://github.com/duck8823/Slack-RTM-Bot
 
 ## SEE ALSO
 
-item https://api.slack.com/rtm
+https://api.slack.com/rtm
 
 # LICENSE
 
