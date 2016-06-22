@@ -49,7 +49,11 @@ sub connect {
 	}
 
 	my ($host) = $self->{info}->{url} =~ m{wss://(.+)/websocket};
-	my $socket = IO::Socket::SSL->new(PeerHost => $host, PeerPort => 443);
+	my $socket = IO::Socket::SSL->new(
+		SSL_verify_mode => SSL_VERIFY_NONE,
+		PeerHost => $host,
+		PeerPort => 443
+	);
 	$socket->blocking(0);
 	$socket->connect;
 
