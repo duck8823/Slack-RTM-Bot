@@ -4,9 +4,14 @@ use 5.008001;
 use strict;
 use warnings;
 
+use JSON;
 use Slack::RTM::Bot::Client;
 
 our $VERSION = "0.04";
+
+pipe(READH, WRITEH);
+select(WRITEH);$|=1;
+select(STDOUT);
 
 sub new {
 	my $pkg = shift;
@@ -23,27 +28,28 @@ sub start_RTM {
 
 	my $parent = $$;
 
-	my $pid_1 = fork;
-	unless($pid_1) {
+	my $pid = fork;
+	unless($pid) {
+		my $i = 0;
 		while (kill 0, $parent) {
 			$client->read;
 			sleep 1;
+			(my $buffer = <READH>) =~ s/\n$//;
+			if($buffer){
+				$client->write(
+					%{JSON::from_json($buffer)}
+				);
+			}
+			if($i++ % 30 == 0){
+				$client->write(
+					id   => $i,
+					type => 'ping'
+				);
+			}
+			print WRITEH "\n";
 		}
 	}
-
-	my $pid_2 = fork;
-	unless($pid_2) {
-		my $i = 0;
-		while (kill 0, $parent) {
-			$client->write(
-				id   => $i++,
-				type => 'ping'
-			);
-			sleep 30;
-		}
-	}
-
-	$self->{children} = [$pid_1, $pid_2];
+	$self->{child} = $pid;
 }
 
 sub stop_RTM {
@@ -51,8 +57,8 @@ sub stop_RTM {
 	$self->{client}->disconnect;
 	undef $self->{client};
 
-	kill 9, @{$self->{children}};
-	undef $self->{children};
+	kill 9, $self->{child};
+	undef $self->{child};
 }
 
 sub _connect {
@@ -78,14 +84,13 @@ sub say {
 	if(!defined $args->{text} || !defined $args->{channel}) {
 		die;
 	}
-
-	$client->write(
-		type    => 'message',
-		subtype => 'bot_message',
-		bot_id  => $self->{client}->{info}->{self}->{id},
-		%$args,
-		channel => $self->{client}->{info}->_find_channel_id($args->{channel}),
-	);
+	print WRITEH JSON::to_json({
+				type    => 'message',
+					subtype => 'bot_message',
+					bot_id  => $self->{client}->{info}->{self}->{id},
+					%$args,
+					channel => $self->{client}->{info}->_find_channel_id($args->{channel}),
+			}) . "\n";
 }
 
 sub add_action {
