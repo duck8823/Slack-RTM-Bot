@@ -46,9 +46,9 @@
             "HTTP::Request::Common" : "0",
             "IO::Socket::SSL" : "0",
             "JSON" : "0",
+            "LWP::Protocol::https" : "0",
             "LWP::UserAgent" : "0",
             "Protocol::WebSocket::Client" : "0",
-            "parent" : "0",
             "perl" : "5.008001"
          }
       },
@@ -71,7 +71,7 @@
          "web" : "https://github.com/duck8823/Slack-RTM-Bot"
       }
    },
-   "version" : "0.03",
+   "version" : "0.04",
    "x_contributors" : [
       "maeda <duck8823@gmail.com>"
    ],

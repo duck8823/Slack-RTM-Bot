@@ -6,7 +6,7 @@ use warnings;
 
 use Slack::RTM::Bot::Client;
 
-our $VERSION = "0.03";
+our $VERSION = "0.04";
 
 sub new {
 	my $pkg = shift;

@@ -2,6 +2,10 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+0.04 2016-06-23T12:09:44Z
+
+    - Fix cpanfile
+
 0.03 2016-06-22T23:04:39Z
 
     - Turned off verifying the hostname.
