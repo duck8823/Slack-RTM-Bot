@@ -71,7 +71,7 @@
          "web" : "https://github.com/duck8823/Slack-RTM-Bot"
       }
    },
-   "version" : "0.04",
+   "version" : "0.05",
    "x_contributors" : [
       "maeda <duck8823@gmail.com>"
    ],

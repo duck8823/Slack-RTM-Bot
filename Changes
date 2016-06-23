@@ -2,6 +2,10 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+0.05 2016-06-23T16:13:50Z
+
+    - Fix a bug that isn't working on Linux
+
 0.04 2016-06-23T12:09:44Z
 
     - Fix cpanfile

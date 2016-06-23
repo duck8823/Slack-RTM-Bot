@@ -21,12 +21,12 @@ subtest 'ENV', sub {
 	$bot->start_RTM;
 
 	isa_ok $bot->{client}, 'Slack::RTM::Bot::Client';
-	is @{$bot->{children}}, 3;
+	is defined $bot->{child}, 1;
 
 	$bot->stop_RTM;
 
 	is defined $bot->{client}, '';
-	is defined $bot->{children}, '';
+	is defined $bot->{child}, '';
 };
 
 subtest 'invalid_token', sub {
