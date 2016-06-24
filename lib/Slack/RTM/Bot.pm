@@ -32,6 +32,7 @@ sub start_RTM {
 	unless($pid) {
 		my $i = 0;
 		while (kill 0, $parent) {
+			print WRITEH "\n";
 			$client->read;
 			sleep 1;
 			(my $buffer = <READH>) =~ s/\n$//;
@@ -46,7 +47,6 @@ sub start_RTM {
 					type => 'ping'
 				);
 			}
-			print WRITEH "\n";
 		}
 	}
 	$self->{child} = $pid;
