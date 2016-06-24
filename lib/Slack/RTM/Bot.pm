@@ -38,7 +38,7 @@ sub start_RTM {
 			(my $buffer = <READH>) =~ s/\n$//;
 			if($buffer){
 				$client->write(
-					%{JSON::from_json($buffer)}
+					%{JSON::from_json(Encode::decode_utf8($buffer))}
 				);
 			}
 			if($i++ % 30 == 0){
@@ -79,7 +79,6 @@ sub say {
 	my $args = {@_};
 
 	die "RTM not started." unless $self->{client};
-	my $client = $self->{client};
 
 	if(!defined $args->{text} || !defined $args->{channel}) {
 		die;
