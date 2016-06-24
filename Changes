@@ -2,6 +2,10 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+0.06 2016-06-24T00:55:32Z
+
+    - Fix a bug that isn't working without using "say" 
+
 0.05 2016-06-23T16:13:50Z
 
     - Fix a bug that isn't working on Linux

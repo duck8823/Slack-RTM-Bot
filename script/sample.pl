@@ -20,7 +20,7 @@ $bot->add_action(
 $bot->start_RTM;
 
 $bot->say(
-	channel => 'general',
+	channel => '@shmaeda',
 	text    => '<!here> hello, world.'
 );
 
