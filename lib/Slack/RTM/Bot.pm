@@ -28,13 +28,17 @@ sub start_RTM {
 
 	my $parent = $$;
 
+	unless(fork){
+		while (kill 0, $parent) {
+			print WRITEH "\n";
+			sleep 1;
+		}
+	}
 	my $pid = fork;
 	unless($pid) {
 		my $i = 0;
 		while (kill 0, $parent) {
-			print WRITEH "\n";
 			$client->read;
-			sleep 1;
 			(my $buffer = <READH>) =~ s/\n$//;
 			if($buffer){
 				$client->write(
