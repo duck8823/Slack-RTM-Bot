@@ -2,6 +2,11 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+0.07 2016-06-25T00:26:06Z
+
+    - Fix Garbled characters
+    - Improve execution timing of "say" method
+
 0.06 2016-06-24T00:55:32Z
 
     - Fix a bug that isn't working without using "say" 
