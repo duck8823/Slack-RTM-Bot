@@ -6,10 +6,10 @@ use Slack::RTM::Bot;
 use Data::Dumper;
 
 my $bot = Slack::RTM::Bot->new(
-	token => $ARGV[0] 
+	token => $ARGV[0]
 );
 
-$bot->add_action(
+$bot->on(
 	{},
 	sub {
 		my ($response) = @_;

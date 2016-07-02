@@ -109,7 +109,7 @@ sub _listen {
 	for my $action(@{$self->{actions}}){
 		for my $key(keys %{$action->{events}}){
 			my $regex = $action->{events}->{$key};
-			if(!defined $response->{$key} || $response->{$key} !~ m/$regex/){
+			if(!defined $response->{$key} || $response->{$key} !~ $regex){
 				return;
 			}
 		}
