@@ -106,14 +106,14 @@ sub _listen {
 		buffer => JSON::from_json($buffer),
 		info   => $self->{info}
 	);
-	for my $action(@{$self->{actions}}){
+ACTION: for my $action(@{$self->{actions}}){
 		for my $key(keys %{$action->{events}}){
 			my $regex = $action->{events}->{$key};
 			if(!defined $response->{$key} || $response->{$key} !~ $regex){
-				return;
+				next ACTION;
 			}
 		}
-		&{$action->{routine}}($response);
+		$action->{routine}->($response);
 	}
 };
 
