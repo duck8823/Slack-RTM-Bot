@@ -7,9 +7,9 @@ Slack::RTM::Bot - This is a perl module helping to create slack bot with Real Ti
     use Slack::RTM::Bot;
     my $bot = Slack::RTM::Bot->new( token => '<API token>');
 
-    $bot->add_action({
+    $bot->on({
             channel => 'general',
-            text    => '.*'
+            text    => /.*/
         },
         sub {
             my ($response) = @_;
@@ -39,9 +39,9 @@ Constructs a [Slack::RTM::Bot](https://metacpan.org/pod/Slack::RTM::Bot) object.
 
 The `$token` is the slack API token.
 
-## add\_action
+## on
 
-    method add_action(\%event, $callback)
+    method on(\%event, $callback)
 
 `$callback` will be executed when it fitted the `\%event` conditions.
 The `\%event` key is equal to a key of json received from slack, and value is estimated as regex.

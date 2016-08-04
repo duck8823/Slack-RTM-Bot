@@ -2,6 +2,10 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+0.08 2016-08-04T18:04:39Z
+
+    - Fix action matching process
+
 0.07 2016-06-25T00:26:06Z
 
     - Fix Garbled characters
