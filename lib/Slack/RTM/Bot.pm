@@ -7,7 +7,7 @@ use warnings;
 use JSON;
 use Slack::RTM::Bot::Client;
 
-our $VERSION = "0.08";
+our $VERSION = "0.09";
 
 pipe(READH, WRITEH);
 select(WRITEH);$|=1;
@@ -24,7 +24,7 @@ sub new {
 
 sub start_RTM {
 	my $self = shift;
-	my $client = $self->_connect;
+	my $client = $self->_connect(@_);
 
 	my $parent = $$;
 
@@ -67,12 +67,13 @@ sub stop_RTM {
 
 sub _connect {
 	my $self = shift;
+	my $options = shift;
 
 	my $client = Slack::RTM::Bot::Client->new(
 		token   => $self->{token},
 		actions => $self->{actions}
 	);
-	$client->connect($self->{token});
+	$client->connect($self->{token}, $options);
 
 	$self->{client} = $client;
 	return $client;

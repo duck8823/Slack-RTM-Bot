@@ -35,7 +35,7 @@ sub new {
 
 sub connect {
 	my $self = shift;
-	my ($token) = @_;
+	my ($token, $options) = @_;
 
 	my $res = $ua->request(POST 'https://slack.com/api/rtm.start', [token => $token]);
 	die 'response fail: ' . $res->content unless(JSON::from_json($res->content)->{ok});
@@ -67,7 +67,7 @@ sub connect {
 			syswrite $socket, $buffer;
 		});
 	$ws_client->on(connect => sub {
-			print "RTM started.\n";
+			print "RTM started.\n" if ($options->{debug});
 		});
 	$ws_client->on(error => sub {
 			my ($cli, $error) = @_;
