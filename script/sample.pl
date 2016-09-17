@@ -9,20 +9,28 @@ my $bot = Slack::RTM::Bot->new(
 	token => $ARGV[0]
 );
 
-#$bot->on(
-#	{},
-#	sub {
-#		my ($response) = @_;
-#		print Dumper $response;
-#	}
-#);
 
-$bot->start_RTM({debug => 0});
+$bot->on({
+        channel => 'test',
+        text    => qr/.*/
+    },
+    sub {
+        my ($response) = @_;
+        print $response->{text}."\n";
+    }
+);
 
-#$bot->say(
-#	channel => '@shmaeda',
-#	text    => '<!here> hello, world.'
-#);
+$bot->start_RTM;
+
+$bot->say(
+    channel => 'test',
+    text    => '<!here> hello, world.'
+);
+
+$bot->say(
+    channel => '@duck8823',
+    text    => 'hello, world.'
+);
 
 sleep 300;
 $bot->stop_RTM;

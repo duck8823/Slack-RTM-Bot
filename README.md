@@ -9,7 +9,7 @@ Slack::RTM::Bot - This is a perl module helping to create slack bot with Real Ti
 
     $bot->on({
             channel => 'general',
-            text    => /.*/
+            text    => qr/.*/
         },
         sub {
             my ($response) = @_;
@@ -24,10 +24,12 @@ Slack::RTM::Bot - This is a perl module helping to create slack bot with Real Ti
         text    => '<!here> hello, world.'
     );
 
-    $bot->say({
+    $bot->say(
         channel => '@username',
         text    => 'hello, world.'
-    });
+    );
+
+    while(1) { sleep 10; print "I'm not dead\n"; }
 
 # METHODS
 
@@ -87,4 +89,4 @@ See LICENSE file.
 
 # AUTHOR
 
-Shunsuke Maeda <duck8823@gmail.com>
+Shunsuke Maeda &lt;duck8823@gmail.com>
