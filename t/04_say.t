@@ -8,14 +8,61 @@ use Slack::RTM::Bot;
 
 local $SIG{__WARN__} = sub { fail shift };
 
+my $bot = Slack::RTM::Bot->new(
+	token => 'foobar'
+);
+
+dies_ok {
+	$bot->say(
+		'hoge'
+	);
+};
+like $@, qr/argument is not a HASH or ARRAY\..*/;
+
+dies_ok {
+	$bot->say();
+};
+like $@, qr/argument is not a HASH or ARRAY\..*/;
+
+dies_ok {
+	$bot->say(
+		'text' => 'hoge'
+	)
+};
+like $@, qr/argument needs keys 'text' and 'channel'\..*/;
+
+dies_ok {
+	$bot->say(
+		'channel' => 'hoge'
+	)
+};
+like $@, qr/argument needs keys 'text' and 'channel'\..*/;
+
+dies_ok {
+	$bot->say(
+		'channel' => 'hoge',
+		'text' => 'hoge'
+	)
+};
+like $@, qr/RTM not started.*/;
+
+dies_ok {
+	$bot->say(
+		'channel', 'hoge',
+		'text', 'hoge'
+	)
+};
+like $@, qr/RTM not started.*/;
+
+SKIP: {
 my $token = $ENV{SLACK_API_TOKEN};
 unless ($token) {
-	plan skip_all => 'No SLACK_API_TOKEN configured for testing.';
+	skip 'No SLACK_API_TOKEN configured for testing.', 2;
 }
 
 my $tmp = "./test.tmp";
 
-my $bot = Slack::RTM::Bot->new(
+$bot = Slack::RTM::Bot->new(
 	token => $token
 );
 
@@ -66,6 +113,6 @@ dies_ok {
 
 $bot->stop_RTM;
 unlink $tmp;
-
+}
 done_testing();
 

@@ -81,13 +81,16 @@ sub _connect {
 
 sub say {
 	my $self = shift;
-	my $args = {@_};
+	my $args;
+	if(!@_ || scalar @_ % 2 != 0) {
+		die "argument is not a HASH or ARRAY."
+	}
+	$args = {@_};
+	if(!defined $args->{text} || !defined $args->{channel}) {
+		die "argument needs keys 'text' and 'channel'.";
+	}
 
 	die "RTM not started." unless $self->{client};
-
-	if(!defined $args->{text} || !defined $args->{channel}) {
-		die;
-	}
 	print WRITEH JSON::to_json({
 				type    => 'message',
 					subtype => 'bot_message',
