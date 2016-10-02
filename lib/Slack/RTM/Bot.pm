@@ -197,7 +197,31 @@ This is opensource software.
 
 https://github.com/duck8823/Slack-RTM-Bot
 
-=head2 SEE ALSO
+=head1 HOW TO CONTRIBUTE
+
+=head2 with installing
+The fastest way to get started working with the code is to run the following commands:
+
+  $ git clone https://github.com/duck8823/Slack-RTM-Bot.git
+  $ cd Slack-RTM-Bot
+  $ cpanm --installdeps .
+  $ perl Build.PL
+  $ ./Build
+  $ ./Build install
+  $ ./Build test  # run the tests
+
+=head2 without installing
+or without installing Slack-RTM-Bot, run the following commands:
+
+  $ git clone https://github.com/duck8823/Slack-RTM-Bot.git
+  $ cd Slack-RTM-Bot
+  $ cpanm --installdeps .  # install dependencies
+
+and run your script with `-I/path/to/Slack-RTM-Bot/lib` option.
+
+  $ perl -I/path/to/Slack-RTM-Bot/lib your_script.pl
+
+=head1 SEE ALSO
 
 https://api.slack.com/rtm
 
