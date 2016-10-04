@@ -5,6 +5,7 @@ use warnings;
 
 use JSON;
 use Encode;
+use Data::Dumper;
 
 use HTTP::Request::Common qw(POST);
 use LWP::UserAgent;
@@ -38,12 +39,26 @@ sub connect {
 	my ($token, $options) = @_;
 
 	my $res = $ua->request(POST 'https://slack.com/api/rtm.start', [token => $token]);
-	die 'response fail: ' . $res->content unless(JSON::from_json($res->content)->{ok});
-	$self->{info} = Slack::RTM::Bot::Information->new(%{JSON::from_json($res->content)});
+	my $content;
+	eval {
+		$content = JSON::from_json($res->content);
+	};
+	if ($@) {
+		die 'response fail:' . Dumper $res->content;
+	}
+	die 'response fail: '. $res->content unless ($content->{ok});
 
+	$self->{info} = Slack::RTM::Bot::Information->new(%{$content});
 	$res = $ua->request(POST 'https://slack.com/api/im.list', [token => $token]);
-	die 'response fail: ' . $res->content unless(JSON::from_json($res->content)->{ok});
-	for my $im (@{JSON::from_json($res->content)->{ims}}) {
+	eval {
+		$content = JSON::from_json($res->content);
+	};
+	if ($@) {
+		die 'response fail:' . Dumper $res->content;
+	}
+	die 'response fail: ' . $res->content unless($content->{ok});
+
+	for my $im (@{$content->{ims}}) {
 		my $name = $self->{info}->_find_user_name($im->{user});
 		$self->{info}->{channels}->{$im->{id}} = {%$im, name => '@'.$name};
 	}
@@ -71,7 +86,7 @@ sub connect {
 		});
 	$ws_client->on(error => sub {
 			my ($cli, $error) = @_;
-			print STDERR 'error: '. JSON::to_json(JSON::from_json($error), {pretty => 1});
+			print STDERR 'error: '. $error;
 		});
 	$ws_client->connect;
 
@@ -102,8 +117,15 @@ sub write {
 sub _listen {
 	my $self = shift;
 	my ($buffer) = @_;
+	my $buffer_obj;
+	eval {
+		$buffer_obj = JSON::from_json($buffer);
+	};
+	if ($@) {
+		die "response is not json string. : $buffer";
+	}
 	my $response = Slack::RTM::Bot::Response->new(
-		buffer => JSON::from_json($buffer),
+		buffer => $buffer_obj,
 		info   => $self->{info}
 	);
 ACTION: for my $action(@{$self->{actions}}){

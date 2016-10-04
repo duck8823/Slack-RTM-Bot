@@ -2,6 +2,7 @@ requires 'Encode';
 requires 'HTTP::Request::Common';
 requires 'IO::Socket::SSL';
 requires 'JSON';
+requires 'Data::Dumper';
 requires 'LWP::Protocol::https';
 requires 'LWP::UserAgent';
 requires 'Protocol::WebSocket::Client';
