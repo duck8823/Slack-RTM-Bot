@@ -9,24 +9,22 @@ use Slack::RTM::Bot;
 local $SIG{__WARN__} = sub { fail shift };
 
 my $token = $ENV{SLACK_API_TOKEN};
-unless ($token) {
-	plan skip_all => 'No SLACK_API_TOKEN configured for testing.';
-}
 
 subtest 'ENV', sub {
-	my $bot = Slack::RTM::Bot->new(
-		token => $token
-	);
+	SKIP: {
+		skip 'No SLACK_API_TOKEN configured for testing.', 1 unless $token;
+		my $bot = Slack::RTM::Bot->new(
+			token => $token
+		);
 
-	$bot->start_RTM;
+		$bot->start_RTM;
+		isa_ok $bot->{client}, 'Slack::RTM::Bot::Client';
 
-	isa_ok $bot->{client}, 'Slack::RTM::Bot::Client';
-	is defined $bot->{child}, 1;
+		$bot->stop_RTM;
 
-	$bot->stop_RTM;
-
-	is defined $bot->{client}, '';
-	is defined $bot->{child}, '';
+		is defined $bot->{client}, '';
+		is defined $bot->{child}, '';
+	}
 };
 
 subtest 'invalid_token', sub {
