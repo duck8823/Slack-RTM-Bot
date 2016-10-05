@@ -42,6 +42,7 @@
       },
       "runtime" : {
          "requires" : {
+            "Data::Dumper" : "0",
             "Encode" : "0",
             "HTTP::Request::Common" : "0",
             "IO::Socket::SSL" : "0",
@@ -71,11 +72,12 @@
          "web" : "https://github.com/duck8823/Slack-RTM-Bot"
       }
    },
-   "version" : "0.10",
+   "version" : "0.11",
    "x_contributors" : [
       "shmaeda <shmaeda@nig.ac.jp>",
       "makamaka <makamaka.donzoko@gmail.com>",
-      "maeda <duck8823@gmail.com>"
+      "Paulo Bu <pbu_98@yahoo.com>",
+      "shunsuke maeda <duck8823@gmail.com>"
    ],
    "x_serialization_backend" : "JSON::PP version 2.27300"
 }

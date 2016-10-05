@@ -2,6 +2,11 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+0.11 2016-10-05T14:23:02Z
+
+    - Add a error message
+    - Add a How To Contribute section in POD
+
 0.10 2016-09-17T08:15:46Z
 
     - Fix synopsis

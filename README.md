@@ -95,11 +95,11 @@ or without installing Slack-RTM-Bot, run the following commands:
     $ cd Slack-RTM-Bot
     $ cpanm --installdeps .  # install dependencies
 
-and run your script with `-I/path/to/Slack-RTM-Bot/lib` option.
+and run your script with \`-I/path/to/Slack-RTM-Bot/lib\` option.
 
     $ perl -I/path/to/Slack-RTM-Bot/lib your_script.pl
 
-## SEE ALSO
+# SEE ALSO
 
 https://api.slack.com/rtm
 
