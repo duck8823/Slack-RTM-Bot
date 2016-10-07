@@ -96,7 +96,7 @@ sub say {
 					subtype => 'bot_message',
 					bot_id  => $self->{client}->{info}->{self}->{id},
 					%$args,
-					channel => $self->{client}->{info}->_find_channel_id($args->{channel}),
+					channel => $self->{client}->{info}->_find_channel_or_group_id($args->{channel}),
 			}) . "\n";
 }
 
