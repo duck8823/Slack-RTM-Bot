@@ -42,6 +42,14 @@ sub _parse_groups {
 	return $groups;
 }
 
+sub _find_channel_or_group_id {
+	my $self = shift;
+	my ($name) = @_;
+	return $self->_find_channel_id($name) ||
+        $self->_find_group_id($name) ||
+        die "There are no channels or groups of such name: $name";
+}
+
 sub _find_channel_id {
 	my $self = shift;
 	my ($name) = @_;
@@ -51,15 +59,39 @@ sub _find_channel_id {
 			return $channels->{$key}->{id};
 		}
 	}
-	die "There are no channels of such name: $name";
+}
+
+sub _find_group_id {
+	my $self = shift;
+	my ($name) = @_;
+	my $groups = $self->{groups};
+	for my $key (keys %{$groups}){
+		if($name eq $groups->{$key}->{name}){
+			return $groups->{$key}->{id};
+		}
+	}
+}
+
+sub _find_channel_or_group_name {
+	my $self = shift;
+	my ($id) = @_;
+    $self->_find_channel_name($id) ||
+        $self->_find_group_name($id) ||
+        die "There are no channels or groups of such id: $id";
 }
 
 sub _find_channel_name {
 	my $self = shift;
 	my ($id) = @_;
 	my $channels = $self->{channels};
-	$channels->{$id} or die "There are no channels of such id: $id";
-	return $channels->{$id}->{name};
+	$channels->{$id}->{name} if $channels->{$id};
+}
+
+sub _find_group_name {
+	my $self = shift;
+	my ($id) = @_;
+	my $groups = $self->{groups};
+	$groups->{$id}->{name} if $groups->{$id};
 }
 
 sub _find_user_name {
