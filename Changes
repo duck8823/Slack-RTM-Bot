@@ -2,6 +2,10 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+0.12 2016-10-08T14:29:19Z
+
+    - Fixes reading/writing to private channels 
+
 0.11 2016-10-05T14:23:02Z
 
     - Add a error message

@@ -7,7 +7,7 @@ use warnings;
 use JSON;
 use Slack::RTM::Bot::Client;
 
-our $VERSION = "0.11";
+our $VERSION = "0.12";
 
 pipe(READH, WRITEH);
 select(WRITEH);$|=1;
