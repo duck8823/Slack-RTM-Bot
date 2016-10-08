@@ -59,6 +59,7 @@ sub _find_channel_id {
 			return $channels->{$key}->{id};
 		}
 	}
+	return undef;
 }
 
 sub _find_group_id {
@@ -70,6 +71,7 @@ sub _find_group_id {
 			return $groups->{$key}->{id};
 		}
 	}
+	return undef;
 }
 
 sub _find_channel_or_group_name {
@@ -84,14 +86,14 @@ sub _find_channel_name {
 	my $self = shift;
 	my ($id) = @_;
 	my $channels = $self->{channels};
-	$channels->{$id}->{name} if $channels->{$id};
+	return $channels->{$id}->{name} if $channels->{$id};
 }
 
 sub _find_group_name {
 	my $self = shift;
 	my ($id) = @_;
 	my $groups = $self->{groups};
-	$groups->{$id}->{name} if $groups->{$id};
+	return $groups->{$id}->{name} if $groups->{$id};
 }
 
 sub _find_user_name {
