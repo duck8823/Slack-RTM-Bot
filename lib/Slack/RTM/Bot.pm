@@ -9,9 +9,7 @@ use Slack::RTM::Bot::Client;
 
 our $VERSION = "0.12";
 
-pipe(READH, WRITEH);
-select(WRITEH);$|=1;
-select(STDOUT);
+select(STDOUT);$|=1;
 
 sub new {
 	my $pkg = shift;
@@ -25,32 +23,24 @@ sub new {
 sub start_RTM {
 	my $self = shift;
 	my $client = $self->_connect(@_);
+    $self->{client} = $client;
 
 	my $parent = $$;
 
-	unless(fork){
-		while (kill 0, $parent) {
-			print WRITEH "\n";
-			sleep 1;
-		}
-	}
 	my $pid = fork;
 	unless($pid) {
+        # child process
 		my $i = 0;
 		while (kill 0, $parent) {
 			$client->read;
-			(my $buffer = <READH>) =~ s/\n$//;
-			if($buffer){
-				$client->write(
-					%{JSON::from_json(Encode::decode_utf8($buffer))}
-				);
-			}
+
 			if($i++ % 30 == 0){
 				$client->write(
 					id   => $i,
 					type => 'ping'
 				);
 			}
+            sleep 1;
 		}
 	}
 	$self->{child} = $pid;
@@ -91,13 +81,16 @@ sub say {
 	}
 
 	die "RTM not started." unless $self->{client};
-	print WRITEH JSON::to_json({
-				type    => 'message',
-					subtype => 'bot_message',
-					bot_id  => $self->{client}->{info}->{self}->{id},
-					%$args,
-					channel => $self->{client}->{info}->_find_channel_or_group_id($args->{channel}),
-			}) . "\n";
+    my $data = JSON::to_json({
+        type    => 'message',
+        subtype => 'bot_message',
+        bot_id  => $self->{client}->{info}->{self}->{id},
+        %$args,
+        channel => $self->{client}->{info}->_find_channel_or_group_id($args->{channel}),
+    });
+    $self->{client}->write(
+        %{JSON::from_json(Encode::decode_utf8($data))}
+    );
 }
 
 sub on {
