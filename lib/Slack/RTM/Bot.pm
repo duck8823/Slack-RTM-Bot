@@ -4,6 +4,8 @@ use 5.008001;
 use strict;
 use warnings;
 
+use threads;
+
 use JSON;
 use Slack::RTM::Bot::Client;
 
@@ -28,41 +30,41 @@ sub start_RTM {
 
 	my $parent = $$;
 
-	unless(fork){
-		while (kill 0, $parent) {
-			print WRITEH "\n";
-			sleep 1;
-		}
-	}
-	my $pid = fork;
-	unless($pid) {
-		my $i = 0;
-		while (kill 0, $parent) {
-			$client->read;
-			(my $buffer = <READH>) =~ s/\n$//;
-			if($buffer){
-				$client->write(
-					%{JSON::from_json(Encode::decode_utf8($buffer))}
-				);
-			}
-			if($i++ % 30 == 0){
-				$client->write(
-					id   => $i,
-					type => 'ping'
-				);
+	threads->create(
+		sub {
+			while (kill 0, $parent) {
+				print WRITEH "\n";
+				sleep 1;
 			}
 		}
-	}
-	$self->{child} = $pid;
+	)->detach;
+
+	threads->create(
+		sub {
+			my $i = 0;
+			while (kill 0, $parent) {
+				$client->read;
+				(my $buffer = <READH>) =~ s/\n.*$//;
+				if ($buffer) {
+					$client->write(
+						%{JSON::from_json(Encode::decode_utf8($buffer))}
+					);
+				}
+				if ($i++ % 30 == 0) {
+					$client->write(
+						id   => $i,
+						type => 'ping'
+					);
+				}
+			}
+		}
+	)->detach;
 }
 
 sub stop_RTM {
 	my $self = shift;
 	$self->{client}->disconnect;
 	undef $self->{client};
-
-	kill 9, $self->{child};
-	undef $self->{child};
 }
 
 sub _connect {
