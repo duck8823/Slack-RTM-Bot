@@ -27,13 +27,16 @@ sub new {
 
 sub start_RTM {
 	my $self = shift;
-	my $client = $self->_connect(@_);
+	$self->_connect($self->{options});
 
 	my $parent = $$;
 
 	threads->create(
 		sub {
 			while (kill 0, $parent) {
+				unless ($self->{client}->{socket}->opened) {
+					$self->{client}->reconnect;
+				}
 				print WRITEH "\n";
 				sleep 1;
 			}
@@ -44,15 +47,15 @@ sub start_RTM {
 		sub {
 			my $i = 0;
 			while (kill 0, $parent) {
-				$client->read;
+				$self->{client}->read;
 				(my $buffer = <READH>) =~ s/\n.*$//;
 				if ($buffer) {
-					$client->write(
+					$self->{client}->write(
 						%{JSON::from_json(Encode::decode_utf8($buffer))}
 					);
 				}
-				if ($i++ % 30 == 0) {
-					$client->write(
+				if (++$i % 30 == 0) {
+					$self->{client}->write(
 						id   => $i,
 						type => 'ping'
 					);
@@ -79,18 +82,22 @@ sub stop_RTM {
 	undef $self->{client};
 }
 
+sub reconnect {
+	my $self = shift;
+	$self->{client}->reconnect;
+}
+
 sub _connect {
 	my $self = shift;
-	my $options = shift;
 
 	my $client = Slack::RTM::Bot::Client->new(
 		token   => $self->{token},
-		actions => $self->{actions}
+		actions => $self->{actions},
+		options => $self->{options}
 	);
-	$client->connect($self->{token}, $options);
+	$client->connect($self->{token});
 
 	$self->{client} = $client;
-	return $client;
 }
 
 sub say {

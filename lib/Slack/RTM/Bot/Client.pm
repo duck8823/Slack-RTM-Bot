@@ -36,33 +36,37 @@ sub new {
 
 sub connect {
 	my $self = shift;
-	my ($token, $options) = @_;
+	my ($token) = @_;
 
-	my $res = $ua->request(POST 'https://slack.com/api/rtm.start', [token => $token]);
+	my $res = $ua->request(POST 'https://slack.com/api/rtm.start', [ token => $token ]);
 	my $content;
 	eval {
 		$content = JSON::from_json($res->content);
 	};
 	if ($@) {
-		die 'response fail:' . Dumper $res->content;
+		die 'response fail:'.Dumper $res->content;
 	}
-	die 'response fail: '. $res->content unless ($content->{ok});
+	die 'response fail: '.$res->content unless ($content->{ok});
 
 	$self->{info} = Slack::RTM::Bot::Information->new(%{$content});
-	$res = $ua->request(POST 'https://slack.com/api/im.list', [token => $token]);
+	$res = $ua->request(POST 'https://slack.com/api/im.list', [ token => $token ]);
 	eval {
 		$content = JSON::from_json($res->content);
 	};
 	if ($@) {
-		die 'response fail:' . Dumper $res->content;
+		die 'response fail:'.Dumper $res->content;
 	}
-	die 'response fail: ' . $res->content unless($content->{ok});
+	die 'response fail: '.$res->content unless ($content->{ok});
 
 	for my $im (@{$content->{ims}}) {
 		my $name = $self->{info}->_find_user_name($im->{user});
-		$self->{info}->{channels}->{$im->{id}} = {%$im, name => '@'.$name};
+		$self->{info}->{channels}->{$im->{id}} = { %$im, name => '@'.$name };
 	}
+	$self->_connect;
+}
 
+sub _connect {
+	my $self = shift;
 	my ($host) = $self->{info}->{url} =~ m{wss://(.+)/websocket};
 	my $socket = IO::Socket::SSL->new(
 		SSL_verify_mode => SSL_VERIFY_NONE,
@@ -82,7 +86,7 @@ sub connect {
 			syswrite $socket, $buffer;
 		});
 	$ws_client->on(connect => sub {
-			print "RTM started.\n" if ($options->{debug});
+			print "RTM (re)connected.\n" if ($self->{options}->{debug});
 		});
 	$ws_client->on(error => sub {
 			my ($cli, $error) = @_;
@@ -92,6 +96,11 @@ sub connect {
 
 	$self->{ws_client} = $ws_client;
 	$self->{socket} = $socket;
+}
+
+sub reconnect {
+	my $self = shift;
+	$self->_connect;
 }
 
 sub disconnect {
@@ -124,6 +133,10 @@ sub _listen {
 	if ($@) {
 		die "response is not json string. : $buffer";
 	}
+	if ($buffer_obj->{type} eq 'reconnect_url') {
+		$self->{info}->{url} = $buffer_obj->{url};
+	}
+
 	my $response = Slack::RTM::Bot::Response->new(
 		buffer => $buffer_obj,
 		info   => $self->{info}
