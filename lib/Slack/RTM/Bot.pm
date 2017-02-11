@@ -4,6 +4,9 @@ use 5.008001;
 use strict;
 use warnings;
 
+use threads;
+use Thread::Queue;
+
 use JSON;
 use Slack::RTM::Bot::Client;
 
@@ -28,41 +31,52 @@ sub start_RTM {
 
 	my $parent = $$;
 
-	unless(fork){
-		while (kill 0, $parent) {
-			print WRITEH "\n";
-			sleep 1;
-		}
-	}
-	my $pid = fork;
-	unless($pid) {
-		my $i = 0;
-		while (kill 0, $parent) {
-			$client->read;
-			(my $buffer = <READH>) =~ s/\n$//;
-			if($buffer){
-				$client->write(
-					%{JSON::from_json(Encode::decode_utf8($buffer))}
-				);
-			}
-			if($i++ % 30 == 0){
-				$client->write(
-					id   => $i,
-					type => 'ping'
-				);
+	threads->create(
+		sub {
+			while (kill 0, $parent) {
+				print WRITEH "\n";
+				sleep 1;
 			}
 		}
-	}
-	$self->{child} = $pid;
+	)->detach;
+
+	threads->create(
+		sub {
+			my $i = 0;
+			while (kill 0, $parent) {
+				$client->read;
+				(my $buffer = <READH>) =~ s/\n.*$//;
+				if ($buffer) {
+					$client->write(
+						%{JSON::from_json(Encode::decode_utf8($buffer))}
+					);
+				}
+				if ($i++ % 30 == 0) {
+					$client->write(
+						id   => $i,
+						type => 'ping'
+					);
+				}
+			}
+		}
+	)->detach;
+
+	$self->{queue} = Thread::Queue->new();
+	$self->{worker} = threads->create(sub {
+		while (defined(my $req = $self->{queue}->dequeue())) {
+			print WRITEH $req;
+		}
+	});
 }
 
 sub stop_RTM {
 	my $self = shift;
+
+	$self->{queue}->end();
+	$self->{worker}->join();
+
 	$self->{client}->disconnect;
 	undef $self->{client};
-
-	kill 9, $self->{child};
-	undef $self->{child};
 }
 
 sub _connect {
@@ -91,13 +105,14 @@ sub say {
 	}
 
 	die "RTM not started." unless $self->{client};
-	print WRITEH JSON::to_json({
+	$self->{queue}->enqueue(JSON::to_json({
 				type    => 'message',
 					subtype => 'bot_message',
 					bot_id  => $self->{client}->{info}->{self}->{id},
 					%$args,
 					channel => $self->{client}->{info}->_find_channel_or_group_id($args->{channel}),
-			}) . "\n";
+			}) . "\n"
+	);
 }
 
 sub on {
