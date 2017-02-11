@@ -4,9 +4,9 @@
       "Shunsuke Maeda"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v3.0.4, CPAN::Meta::Converter version 2.150005",
+   "generated_by" : "Minilla/v3.0.9, CPAN::Meta::Converter version 2.143240",
    "license" : [
-      "mit"
+      "unknown"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -72,12 +72,11 @@
          "web" : "https://github.com/duck8823/Slack-RTM-Bot"
       }
    },
-   "version" : "0.12",
+   "version" : "0.13",
    "x_contributors" : [
       "shmaeda <shmaeda@nig.ac.jp>",
       "makamaka <makamaka.donzoko@gmail.com>",
       "Paulo Bu <pbu_98@yahoo.com>",
-      "shunsuke maeda <duck8823@gmail.com>"
-   ],
-   "x_serialization_backend" : "JSON::PP version 2.27300"
+      "Shunsuke Maeda <duck8823@gmail.com>"
+   ]
 }

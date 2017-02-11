@@ -113,4 +113,4 @@ See LICENSE file.
 
 # AUTHOR
 
-Shunsuke Maeda &lt;duck8823@gmail.com>
+Shunsuke Maeda <duck8823@gmail.com>

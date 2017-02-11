@@ -2,6 +2,11 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+0.13 2017-02-11T04:35:24Z
+
+    - Using thread instead of fork
+    - Fixes say()
+
 0.12 2016-10-08T14:29:19Z
 
     - Fixes reading/writing to private channels 
