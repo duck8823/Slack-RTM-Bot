@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use threads;
+use Thread::Queue;
 
 use JSON;
 use Slack::RTM::Bot::Client;
@@ -59,10 +60,21 @@ sub start_RTM {
 			}
 		}
 	)->detach;
+
+	$self->{queue} = Thread::Queue->new();
+	$self->{worker} = threads->create(sub {
+		while (defined(my $req = $self->{queue}->dequeue())) {
+			print WRITEH $req;
+		}
+	});
 }
 
 sub stop_RTM {
 	my $self = shift;
+
+	$self->{queue}->end();
+	$self->{worker}->join();
+
 	$self->{client}->disconnect;
 	undef $self->{client};
 }
@@ -93,13 +105,14 @@ sub say {
 	}
 
 	die "RTM not started." unless $self->{client};
-	print WRITEH JSON::to_json({
+	$self->{queue}->enqueue(JSON::to_json({
 				type    => 'message',
 					subtype => 'bot_message',
 					bot_id  => $self->{client}->{info}->{self}->{id},
 					%$args,
 					channel => $self->{client}->{info}->_find_channel_or_group_id($args->{channel}),
-			}) . "\n";
+			}) . "\n"
+	);
 }
 
 sub on {
