@@ -133,7 +133,7 @@ sub _listen {
 	if ($@) {
 		die "response is not json string. : $buffer";
 	}
-	if ($buffer_obj->{type} eq 'reconnect_url') {
+	if ($buffer_obj->{type} && $buffer_obj->{type} eq 'reconnect_url') {
 		$self->{info}->{url} = $buffer_obj->{url};
 	}
 
