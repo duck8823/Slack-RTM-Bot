@@ -112,14 +112,15 @@ sub say {
 	}
 
 	die "RTM not started." unless $self->{client};
-	$self->{queue}->enqueue(JSON::to_json({
-				type    => 'message',
-					subtype => 'bot_message',
-					bot_id  => $self->{client}->{info}->{self}->{id},
-					%$args,
-					channel => $self->{client}->{info}->_find_channel_or_group_id($args->{channel}),
-			}) . "\n"
-	);
+
+	my $request = JSON::to_json({
+		type    => 'message',
+		subtype => 'bot_message',
+		bot_id  => $self->{client}->{info}->{self}->{id},
+		%$args,
+		channel => $self->{client}->{info}->_find_channel_or_group_id($args->{channel})
+	})."\n";
+	$self->{queue} ? $self->{queue}->enqueue($request) : print WRITEH $request;
 }
 
 sub on {
