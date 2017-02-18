@@ -10,7 +10,7 @@ use Thread::Queue;
 use JSON;
 use Slack::RTM::Bot::Client;
 
-our $VERSION = "0.13";
+our $VERSION = "0.14";
 
 pipe(READH, WRITEH);
 select(WRITEH);$|=1;
