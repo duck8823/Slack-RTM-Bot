@@ -4,9 +4,6 @@ use 5.008001;
 use strict;
 use warnings;
 
-use threads;
-use Thread::Queue;
-
 use JSON;
 use Slack::RTM::Bot::Client;
 
@@ -31,45 +28,35 @@ sub start_RTM {
 
 	my $parent = $$;
 
-	threads->create(
-		sub {
-			while (kill 0, $parent) {
-				unless ($self->{client}->{socket}->opened) {
-					$self->{client}->reconnect;
-				}
-				print WRITEH "\n";
-				sleep 1;
+	unless(fork()) {
+		while (kill 0, $parent) {
+			unless ($self->{client}->{socket}->opened) {
+				$self->{client}->reconnect;
+			}
+			print WRITEH "\n";
+			sleep 1;
+		}
+	};
+	my $pid = fork();
+	unless($pid) {
+		my $i = 0;
+		while (kill 0, $parent) {
+			$self->{client}->read;
+			(my $buffer = <READH>) =~ s/\n.*$//;
+			if ($buffer) {
+				$self->{client}->write(
+					%{JSON::from_json(Encode::decode_utf8($buffer))}
+				);
+			}
+			if (++$i % 30 == 0) {
+				$self->{client}->write(
+					id   => $i,
+					type => 'ping'
+				);
 			}
 		}
-	)->detach;
-
-	threads->create(
-		sub {
-			my $i = 0;
-			while (kill 0, $parent) {
-				$self->{client}->read;
-				(my $buffer = <READH>) =~ s/\n.*$//;
-				if ($buffer) {
-					$self->{client}->write(
-						%{JSON::from_json(Encode::decode_utf8($buffer))}
-					);
-				}
-				if (++$i % 30 == 0) {
-					$self->{client}->write(
-						id   => $i,
-						type => 'ping'
-					);
-				}
-			}
-		}
-	)->detach;
-
-	$self->{queue} = Thread::Queue->new();
-	$self->{worker} = threads->create(sub {
-		while (defined(my $req = $self->{queue}->dequeue())) {
-			print WRITEH $req;
-		}
-	});
+	}
+	$self->{child} = $pid;
 }
 
 sub stop_RTM {
@@ -80,6 +67,9 @@ sub stop_RTM {
 
 	$self->{client}->disconnect;
 	undef $self->{client};
+
+	kill 9, $self->{child};
+	undef $self->{child};
 }
 
 sub reconnect {
