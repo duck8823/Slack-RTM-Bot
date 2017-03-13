@@ -62,9 +62,6 @@ sub start_RTM {
 sub stop_RTM {
 	my $self = shift;
 
-	$self->{queue}->end();
-	$self->{worker}->join();
-
 	$self->{client}->disconnect;
 	undef $self->{client};
 
