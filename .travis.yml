@@ -7,12 +7,6 @@ perl:
   - "5.18"
   - "5.20"
   - "5.22"
-  - "5.12-thr"
-  - "5.14-thr"
-  - "5.16-thr"
-  - "5.18-thr"
-  - "5.20-thr"
-  - "5.22-thr"
 before_install:
   - eval $(curl https://travis-perl.github.io/init) --auto
 
