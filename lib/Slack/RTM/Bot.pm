@@ -24,11 +24,14 @@ sub new {
 
 sub start_RTM {
 	my $self = shift;
+	my ($sub) = @_;
 	$self->_connect($self->{options});
 
 	my $parent = $$;
+	my @children = ();
 
-	unless(fork()) {
+	push @children, fork;
+	unless($children[0]) {
 		while (kill 0, $parent) {
 			unless ($self->{client}->{socket}->opened) {
 				$self->{client}->reconnect;
@@ -36,27 +39,30 @@ sub start_RTM {
 			print WRITEH "\n";
 			sleep 1;
 		}
-	};
-	my $pid = fork();
-	unless($pid) {
-		my $i = 0;
-		while (kill 0, $parent) {
-			$self->{client}->read;
-			(my $buffer = <READH>) =~ s/\n.*$//;
-			if ($buffer) {
-				$self->{client}->write(
-					%{JSON::from_json(Encode::decode_utf8($buffer))}
-				);
+	} else {
+		push @children, fork;
+		unless($children[1]) {
+			my $i = 0;
+			while (kill 0, $children[0]) {
+				$self->{client}->read;
+				(my $buffer = <READH>) =~ s/\n.*$//;
+				if ($buffer) {
+					$self->{client}->write(
+						%{JSON::from_json(Encode::decode_utf8($buffer))}
+					);
+				}
+				if (++$i % 30 == 0) {
+					$self->{client}->write(
+						id   => $i,
+						type => 'ping'
+					);
+				}
 			}
-			if (++$i % 30 == 0) {
-				$self->{client}->write(
-					id   => $i,
-					type => 'ping'
-				);
-			}
+		} else {
+			$self->{children} = \@children;
+			&$sub($self);
 		}
-	}
-	$self->{child} = $pid;
+	};
 }
 
 sub stop_RTM {
@@ -65,8 +71,10 @@ sub stop_RTM {
 	$self->{client}->disconnect;
 	undef $self->{client};
 
-	kill 9, $self->{child};
-	undef $self->{child};
+	for my $child (@{$self->{children}}) {
+		kill 9, $child;
+	}
+	undef $self->{children};
 }
 
 sub reconnect {
