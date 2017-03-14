@@ -36,15 +36,15 @@ sub start_RTM {
 	unless($children[0]) {
 		my $i = 0;
 		while (kill 0, $parent) {
-			$self->{client}->read;
+			if ($self->{client}->read) {
+				print WRITEH2 "\n";
+			}
 			(my $buffer = <READH>) =~ s/\n.*$//;
 			if ($buffer) {
 				$self->{client}->write(
 					%{JSON::from_json(Encode::decode_utf8($buffer))}
 				);
-				print WRITEH2 "\n";
 			}
-			$self->{connected} = 1;
 			if (++$i % 30 == 0) {
 				$self->{client}->write(
 					id   => $i,
@@ -56,9 +56,7 @@ sub start_RTM {
 		push @children, fork;
 		unless($children[1]) {
 			while (kill 0, $children[0]) {
-				unless ($self->{client}->{socket}->opened) {
-					$self->{client}->reconnect;
-				}
+				$self->reconnect;
 				print WRITEH "\n";
 				sleep 1;
 			}
@@ -66,7 +64,7 @@ sub start_RTM {
 			$self->{children} = \@children;
 			# wait until connected
 			<READH2>;
-			&$sub($self);
+			&$sub($self) if $sub;
 		}
 	};
 }
@@ -74,6 +72,7 @@ sub start_RTM {
 sub stop_RTM {
 	my $self = shift;
 
+	sleep 1;
 	$self->{client}->disconnect;
 	undef $self->{client};
 
@@ -121,7 +120,7 @@ sub say {
 		%$args,
 		channel => $self->{client}->{info}->_find_channel_or_group_id($args->{channel})
 	})."\n";
-	$self->{queue} ? $self->{queue}->enqueue($request) : print WRITEH $request;
+	print WRITEH $request;
 }
 
 sub on {

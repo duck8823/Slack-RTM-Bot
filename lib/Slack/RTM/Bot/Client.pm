@@ -100,7 +100,10 @@ sub _connect {
 
 sub reconnect {
 	my $self = shift;
-	$self->_connect;
+	unless ($self->{socket}->opened) {
+		print "reconecting...\n" if ($self->{options}->{debug});
+		$self->_connect;
+	}
 }
 
 sub disconnect {
@@ -115,7 +118,10 @@ sub read {
 	while (my $line = readline $self->{socket}) {
 		$data .= $line;
 	}
-	$self->{ws_client}->read($data) if $data;
+	if ($data) {
+		$self->{ws_client}->read($data);
+		return $data =~ /.*hello.*/;
+	}
 }
 
 sub write {
