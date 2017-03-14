@@ -11,6 +11,8 @@ our $VERSION = "0.14";
 
 pipe(READH, WRITEH);
 select(WRITEH);$|=1;
+pipe(READH2, WRITEH2);
+select(WRITEH2);$|=1;
 select(STDOUT);
 
 sub new {
@@ -32,34 +34,38 @@ sub start_RTM {
 
 	push @children, fork;
 	unless($children[0]) {
+		my $i = 0;
 		while (kill 0, $parent) {
-			unless ($self->{client}->{socket}->opened) {
-				$self->{client}->reconnect;
+			$self->{client}->read;
+			(my $buffer = <READH>) =~ s/\n.*$//;
+			if ($buffer) {
+				$self->{client}->write(
+					%{JSON::from_json(Encode::decode_utf8($buffer))}
+				);
+				print WRITEH2 "\n";
 			}
-			print WRITEH "\n";
-			sleep 1;
+			$self->{connected} = 1;
+			if (++$i % 30 == 0) {
+				$self->{client}->write(
+					id   => $i,
+					type => 'ping'
+				);
+			}
 		}
 	} else {
 		push @children, fork;
 		unless($children[1]) {
-			my $i = 0;
 			while (kill 0, $children[0]) {
-				$self->{client}->read;
-				(my $buffer = <READH>) =~ s/\n.*$//;
-				if ($buffer) {
-					$self->{client}->write(
-						%{JSON::from_json(Encode::decode_utf8($buffer))}
-					);
+				unless ($self->{client}->{socket}->opened) {
+					$self->{client}->reconnect;
 				}
-				if (++$i % 30 == 0) {
-					$self->{client}->write(
-						id   => $i,
-						type => 'ping'
-					);
-				}
+				print WRITEH "\n";
+				sleep 1;
 			}
 		} else {
 			$self->{children} = \@children;
+			# wait until connected
+			<READH2>;
 			&$sub($self);
 		}
 	};
