@@ -219,19 +219,20 @@ Slack::RTM::Bot - This is a perl module helping to create slack bot with Real Ti
         }
     );
 
-    $bot->start_RTM;
+    $bot->start_RTM(sub {
 
-    $bot->say(
-        channel => 'general',
-        text    => '<!here> hello, world.'
-    );
+        $bot->say(
+            channel => 'general',
+            text    => '<!here> hello, world.'
+        );
 
-    $bot->say(
-        channel => '@username',
-        text    => 'hello, world.'
-    );
+        $bot->say(
+            channel => '@username',
+            text    => 'hello, world.'
+        );
 
-    while(1) { sleep 10; print "I'm not dead\n"; }
+        while(1) { sleep 10; print "I'm not dead\n"; }
+    });
 
 =head1 METHODS
 
@@ -254,9 +255,10 @@ C<$callback> is handed JSON object of message received from Slack.
 
 =head2 start_RTM
 
-  method start_RTM()
+  method start_RTM($callback)
 
 It start Real Time Messaging API.
+C<$callback> will be executed when establish connection.
 
 =head2 stop_RTM
 
