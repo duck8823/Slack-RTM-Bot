@@ -2,6 +2,11 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+1.00 2017-03-15T17:07:06Z
+
+   - Restore threads to fork (but on MSWin32, using threads)
+   - Fix to wait establish connection on start_RTM
+
 0.14 2017-02-18T16:06:25Z
 
    - Fix tests without threads
