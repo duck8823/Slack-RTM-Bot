@@ -4,9 +4,6 @@ use 5.008001;
 use strict;
 use warnings;
 
-use threads;
-use Thread::Queue;
-
 use JSON;
 use Slack::RTM::Bot::Client;
 
@@ -14,6 +11,8 @@ our $VERSION = "0.14";
 
 pipe(READH, WRITEH);
 select(WRITEH);$|=1;
+pipe(READH2, WRITEH2);
+select(WRITEH2);$|=1;
 select(STDOUT);
 
 sub new {
@@ -27,27 +26,21 @@ sub new {
 
 sub start_RTM {
 	my $self = shift;
+	my ($sub) = @_;
 	$self->_connect($self->{options});
 
 	my $parent = $$;
 
-	threads->create(
-		sub {
-			while (kill 0, $parent) {
-				unless ($self->{client}->{socket}->opened) {
-					$self->{client}->reconnect;
-				}
-				print WRITEH "\n";
-				sleep 1;
-			}
-		}
-	)->detach;
+	if ($^O ne 'MSWin32') {
+		my @children = ();
 
-	threads->create(
-		sub {
+		push @children, fork;
+		unless ($children[0]) {
 			my $i = 0;
 			while (kill 0, $parent) {
-				$self->{client}->read;
+				if ($self->{client}->read) {
+					print WRITEH2 "\n";
+				}
 				(my $buffer = <READH>) =~ s/\n.*$//;
 				if ($buffer) {
 					$self->{client}->write(
@@ -61,25 +54,89 @@ sub start_RTM {
 					);
 				}
 			}
-		}
-	)->detach;
+		} else {
+			push @children, fork;
+			unless ($children[1]) {
+				while (kill 0, $children[0]) {
+					$self->reconnect;
+					print WRITEH "\n";
+					sleep 1;
+				}
+			} else {
+				$self->{children} = \@children;
+				# wait until connected
+				<READH2>;
+				&$sub($self) if $sub;
+			}
+		};
+	} else {
+		require threads;
+		require Thread::Queue;
 
-	$self->{queue} = Thread::Queue->new();
-	$self->{worker} = threads->create(sub {
-		while (defined(my $req = $self->{queue}->dequeue())) {
-			print WRITEH $req;
-		}
-	});
+		threads->create(
+			sub {
+				while (kill 0, $parent) {
+					unless ($self->{client}->{socket}->opened) {
+						$self->{client}->reconnect;
+					}
+					print WRITEH "\n";
+					sleep 1;
+				}
+			}
+		)->detach;
+
+		threads->create(
+			sub {
+				my $i = 0;
+				while (kill 0, $parent) {
+					if ($self->{client}->read) {
+						print WRITEH2 "\n";
+					}
+					(my $buffer = <READH>) =~ s/\n.*$//;
+					if ($buffer) {
+						$self->{client}->write(
+							%{JSON::from_json(Encode::decode_utf8($buffer))}
+						);
+					}
+					if (++$i % 30 == 0) {
+						$self->{client}->write(
+							id   => $i,
+							type => 'ping'
+						);
+					}
+				}
+			}
+		)->detach;
+
+		$self->{queue} = Thread::Queue->new();
+		$self->{worker} = threads->create(sub {
+			while (defined(my $req = $self->{queue}->dequeue())) {
+				print WRITEH $req;
+			}
+		});
+
+		# wait until connected
+		<READH2>;
+		&$sub($self) if $sub;
+	}
 }
 
 sub stop_RTM {
 	my $self = shift;
 
-	$self->{queue}->end();
-	$self->{worker}->join();
-
+	sleep 1;
 	$self->{client}->disconnect;
 	undef $self->{client};
+
+	if ($^O ne 'MSWin32') {
+		for my $child (@{$self->{children}}) {
+			kill 9, $child;
+		}
+		undef $self->{children};
+	} else {
+		$self->{queue}->end();
+		$self->{worker}->join();
+	}
 }
 
 sub reconnect {
@@ -120,7 +177,7 @@ sub say {
 		%$args,
 		channel => $self->{client}->{info}->_find_channel_or_group_id($args->{channel})
 	})."\n";
-	$self->{queue} ? $self->{queue}->enqueue($request) : print WRITEH $request;
+	print WRITEH $request;
 }
 
 sub on {
@@ -162,19 +219,20 @@ Slack::RTM::Bot - This is a perl module helping to create slack bot with Real Ti
         }
     );
 
-    $bot->start_RTM;
+    $bot->start_RTM(sub {
 
-    $bot->say(
-        channel => 'general',
-        text    => '<!here> hello, world.'
-    );
+        $bot->say(
+            channel => 'general',
+            text    => '<!here> hello, world.'
+        );
 
-    $bot->say(
-        channel => '@username',
-        text    => 'hello, world.'
-    );
+        $bot->say(
+            channel => '@username',
+            text    => 'hello, world.'
+        );
 
-    while(1) { sleep 10; print "I'm not dead\n"; }
+        while(1) { sleep 10; print "I'm not dead\n"; }
+    });
 
 =head1 METHODS
 
@@ -197,9 +255,10 @@ C<$callback> is handed JSON object of message received from Slack.
 
 =head2 start_RTM
 
-  method start_RTM()
+  method start_RTM($callback)
 
 It start Real Time Messaging API.
+C<$callback> will be executed when establish connection.
 
 =head2 stop_RTM
 
