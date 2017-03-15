@@ -30,43 +30,95 @@ sub start_RTM {
 	$self->_connect($self->{options});
 
 	my $parent = $$;
-	my @children = ();
 
-	push @children, fork;
-	unless($children[0]) {
-		my $i = 0;
-		while (kill 0, $parent) {
-			if ($self->{client}->read) {
-				print WRITEH2 "\n";
-			}
-			(my $buffer = <READH>) =~ s/\n.*$//;
-			if ($buffer) {
-				$self->{client}->write(
-					%{JSON::from_json(Encode::decode_utf8($buffer))}
-				);
-			}
-			if (++$i % 30 == 0) {
-				$self->{client}->write(
-					id   => $i,
-					type => 'ping'
-				);
-			}
-		}
-	} else {
+	if ($^O ne 'MSWin32') {
+		my @children = ();
+
 		push @children, fork;
-		unless($children[1]) {
-			while (kill 0, $children[0]) {
-				$self->reconnect;
-				print WRITEH "\n";
-				sleep 1;
+		unless ($children[0]) {
+			my $i = 0;
+			while (kill 0, $parent) {
+				if ($self->{client}->read) {
+					print WRITEH2 "\n";
+				}
+				(my $buffer = <READH>) =~ s/\n.*$//;
+				if ($buffer) {
+					$self->{client}->write(
+						%{JSON::from_json(Encode::decode_utf8($buffer))}
+					);
+				}
+				if (++$i % 30 == 0) {
+					$self->{client}->write(
+						id   => $i,
+						type => 'ping'
+					);
+				}
 			}
 		} else {
-			$self->{children} = \@children;
-			# wait until connected
-			<READH2>;
-			&$sub($self) if $sub;
-		}
-	};
+			push @children, fork;
+			unless ($children[1]) {
+				while (kill 0, $children[0]) {
+					$self->reconnect;
+					print WRITEH "\n";
+					sleep 1;
+				}
+			} else {
+				$self->{children} = \@children;
+				# wait until connected
+				<READH2>;
+				&$sub($self) if $sub;
+			}
+		};
+	} else {
+		use threads;
+		use Thread::Queue;
+
+		threads->create(
+			sub {
+				while (kill 0, $parent) {
+					unless ($self->{client}->{socket}->opened) {
+						$self->{client}->reconnect;
+					}
+					print WRITEH "\n";
+					sleep 1;
+				}
+			}
+		)->detach;
+
+		threads->create(
+			sub {
+				my $i = 0;
+				while (kill 0, $parent) {
+					if ($self->{client}->read) {
+						print WRITEH2 "\n";
+					}
+					(my $buffer = <READH>) =~ s/\n.*$//;
+					if ($buffer) {
+						$self->{client}->write(
+							%{JSON::from_json(Encode::decode_utf8($buffer))}
+						);
+					}
+					if (++$i % 30 == 0) {
+						$self->{client}->write(
+							id   => $i,
+							type => 'ping'
+						);
+					}
+				}
+			}
+		)->detach;
+
+		$self->{queue} = Thread::Queue->new();
+		$self->{worker} = threads->create(sub {
+			while (defined(my $req = $self->{queue}->dequeue())) {
+				print WRITEH $req;
+			}
+		});
+
+		# wait until connected
+		<READH2>;
+		&$sub($self) if $sub;
+	}
 }
 
 sub stop_RTM {
@@ -76,10 +128,15 @@ sub stop_RTM {
 	$self->{client}->disconnect;
 	undef $self->{client};
 
-	for my $child (@{$self->{children}}) {
-		kill 9, $child;
+	if ($^O ne 'MSWin32') {
+		for my $child (@{$self->{children}}) {
+			kill 9, $child;
+		}
+		undef $self->{children};
+	} else {
+		$self->{queue}->end();
+		$self->{worker}->join();
 	}
-	undef $self->{children};
 }
 
 sub reconnect {
