@@ -70,8 +70,8 @@ sub start_RTM {
 			}
 		};
 	} else {
-		use threads;
-		use Thread::Queue;
+		require threads;
+		require Thread::Queue;
 
 		threads->create(
 			sub {
