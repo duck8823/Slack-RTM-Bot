@@ -77,8 +77,8 @@ sub _connect {
 	$socket->connect;
 
 	my $ws_client = Protocol::WebSocket::Client->new(url => $self->{info}->{url});
-	$ws_client->{hs}->{req}->{max_message_size} = $self->{options}->{max_message_size} if $self->{options}->{max_message_size};
-	$ws_client->{hs}->{res}->{max_message_size} = $self->{options}->{max_message_size} if $self->{options}->{max_message_size};
+	$ws_client->{hs}->req->{max_message_size} = $self->{options}->{max_message_size} if $self->{options}->{max_message_size};
+	$ws_client->{hs}->res->{max_message_size} = $self->{options}->{max_message_size} if $self->{options}->{max_message_size};
 	$ws_client->on(read => sub {
 			my ($cli, $buffer) = @_;
 			$self->_listen($buffer);
