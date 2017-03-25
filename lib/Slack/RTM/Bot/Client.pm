@@ -98,14 +98,6 @@ sub _connect {
 	$self->{socket} = $socket;
 }
 
-sub reconnect {
-	my $self = shift;
-	unless ($self->{socket}->opened) {
-		print "reconecting...\n" if ($self->{options}->{debug});
-		$self->_connect;
-	}
-}
-
 sub disconnect {
 	my $self = shift;
 	$self->{ws_client}->disconnect;
