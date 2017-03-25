@@ -58,7 +58,6 @@ sub start_RTM {
 			push @children, fork;
 			unless ($children[1]) {
 				while (kill 0, $children[0]) {
-					$self->reconnect;
 					print WRITEH "\n";
 					sleep 1;
 				}
@@ -76,9 +75,6 @@ sub start_RTM {
 		threads->create(
 			sub {
 				while (kill 0, $parent) {
-					unless ($self->{client}->{socket}->opened) {
-						$self->{client}->reconnect;
-					}
 					print WRITEH "\n";
 					sleep 1;
 				}
@@ -137,11 +133,6 @@ sub stop_RTM {
 		$self->{queue}->end();
 		$self->{worker}->join();
 	}
-}
-
-sub reconnect {
-	my $self = shift;
-	$self->{client}->reconnect;
 }
 
 sub _connect {
