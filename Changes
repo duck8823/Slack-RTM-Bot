@@ -2,6 +2,11 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+1.01 2017-03-25T00:20:55Z
+
+   - Improve that max_message_size can be set to Protocol::WebSocket::Client
+   - Remove reconnect (not working method)
+
 1.00 2017-03-15T17:07:06Z
 
    - Restore threads to fork (but on MSWin32, using threads)
