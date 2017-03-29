@@ -1,4 +1,5 @@
 name = "Slack-RTM-Bot"
 # badges = ["travis"]
 module_maker="ModuleBuildTiny"
-
+[Metadata]
+x_static_install = 1
