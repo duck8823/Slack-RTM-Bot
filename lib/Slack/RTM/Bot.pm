@@ -4,6 +4,8 @@ use 5.008001;
 use strict;
 use warnings;
 
+use POSIX qw/sys_wait_h/;
+
 use JSON;
 use Slack::RTM::Bot::Client;
 
@@ -36,30 +38,31 @@ sub start_RTM {
 
 		push @children, fork;
 		unless ($children[0]) {
-			my $i = 0;
-			while (kill 0, $parent) {
-				if ($self->{client}->read) {
-					print WRITEH2 "\n";
-				}
-				(my $buffer = <READH>) =~ s/\n.*$//;
-				if ($buffer) {
-					$self->{client}->write(
-						%{JSON::from_json(Encode::decode_utf8($buffer))}
-					);
-				}
-				if (++$i % 30 == 0) {
-					$self->{client}->write(
-						id   => $i,
-						type => 'ping'
-					);
-				}
+			while (kill 0, $children[0]) {
+				print WRITEH "\n";
+				sleep 1;
 			}
 		} else {
 			push @children, fork;
 			unless ($children[1]) {
-				while (kill 0, $children[0]) {
-					print WRITEH "\n";
-					sleep 1;
+				$self->{client}->{pids} = [$parent, @children];
+				my $i = 0;
+				while (kill 0, $parent) {
+					if ($self->{client}->read) {
+						print WRITEH2 "\n";
+					}
+					(my $buffer = <READH>) =~ s/\n.*$//;
+					if ($buffer) {
+						$self->{client}->write(
+							%{JSON::from_json(Encode::decode_utf8($buffer))}
+						);
+					}
+					if (++$i % 30 == 0) {
+						$self->{client}->write(
+							id   => $i,
+							type => 'ping'
+						);
+					}
 				}
 			} else {
 				$self->{children} = \@children;
@@ -127,6 +130,7 @@ sub stop_RTM {
 	if ($^O ne 'MSWin32') {
 		for my $child (@{$self->{children}}) {
 			kill 9, $child;
+			waitpid($child, WUNTRACED);
 		}
 		undef $self->{children};
 	} else {
