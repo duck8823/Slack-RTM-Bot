@@ -72,12 +72,12 @@
          "web" : "https://github.com/duck8823/Slack-RTM-Bot"
       }
    },
-   "version" : "1.02",
+   "version" : "1.03",
    "x_contributors" : [
       "shmaeda <shmaeda@nig.ac.jp>",
       "makamaka <makamaka.donzoko@gmail.com>",
       "Paulo Bu <pbu_98@yahoo.com>",
-      "shunsuke maeda <duck8823@gmail.com>"
+      "Shunsuke Maeda <duck8823@gmail.com>"
    ],
    "x_static_install" : 1
 }

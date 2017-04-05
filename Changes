@@ -2,6 +2,11 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+1.03 2017-04-05T23:11:07Z
+
+   - Fix a bug that zombies spawn when stop_RTM
+   - Fix a problem that main process stop when die in callback process
+
 1.02 2017-03-29T23:12:01Z
 
    - Add x_static_install flag
