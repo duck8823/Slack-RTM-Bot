@@ -148,7 +148,14 @@ ACTION: for my $action(@{$self->{actions}}){
 				next ACTION;
 			}
 		}
-		$action->{routine}->($response);
+		eval {
+			$action->{routine}->($response);
+		};
+		if ($@) {
+			warn $@;
+			kill 9, @{$self->{pids}};
+			exit(1);
+		}
 	}
 };
 
