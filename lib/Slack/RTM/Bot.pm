@@ -4,6 +4,8 @@ use 5.008001;
 use strict;
 use warnings;
 
+use POSIX qw/sys_wait_h/;
+
 use JSON;
 use Slack::RTM::Bot::Client;
 
@@ -127,6 +129,7 @@ sub stop_RTM {
 	if ($^O ne 'MSWin32') {
 		for my $child (@{$self->{children}}) {
 			kill 9, $child;
+			waitpid($child, WUNTRACED);
 		}
 		undef $self->{children};
 	} else {
