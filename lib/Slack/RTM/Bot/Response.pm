@@ -7,8 +7,8 @@ sub new {
 	my $pkg = shift;
 	my $args = {@_};
 	my $self = {%{$args->{buffer}}};
-	$self->{user} = $args->{info}->_find_user_name($self->{user}) if $self->{user} && !ref( $self->{user} );
-	$self->{channel} = $args->{info}->_find_channel_or_group_name($self->{channel}) if $self->{channel} && !ref( $self->{channel} );
+	$self->{user} = $args->{user};
+	$self->{channel} = $args->{channel};
 	return bless $self, $pkg;
 }
 

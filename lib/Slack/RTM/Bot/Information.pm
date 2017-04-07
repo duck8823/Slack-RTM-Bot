@@ -45,9 +45,7 @@ sub _parse_groups {
 sub _find_channel_or_group_id {
 	my $self = shift;
 	my ($name) = @_;
-	return $self->_find_channel_id($name) ||
-        $self->_find_group_id($name) ||
-        die "There are no channels or groups of such name: $name";
+	return $self->_find_channel_id($name) || $self->_find_group_id($name);
 }
 
 sub _find_channel_id {
@@ -77,9 +75,7 @@ sub _find_group_id {
 sub _find_channel_or_group_name {
 	my $self = shift;
 	my ($id) = @_;
-    $self->_find_channel_name($id) ||
-        $self->_find_group_name($id) ||
-        die "There are no channels or groups of such id: $id";
+    return $self->_find_channel_name($id) || $self->_find_group_name($id);
 }
 
 sub _find_channel_name {
@@ -100,8 +96,7 @@ sub _find_user_name {
 	my $self = shift;
 	my ($id) = @_;
 	my $users = $self->{users};
-	$users->{$id} or die "There are no users of such id: $id";
-	return $users->{$id}->{name};
+	return $users->{$id}->{name} if $users->{$id};
 }
 
 1;

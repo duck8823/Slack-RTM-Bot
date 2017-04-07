@@ -7,7 +7,7 @@ use JSON;
 use Encode;
 use Data::Dumper;
 
-use HTTP::Request::Common qw(POST);
+use HTTP::Request::Common qw(POST GET);
 use LWP::UserAgent;
 use LWP::Protocol::https;
 
@@ -123,6 +123,107 @@ sub write {
 	$self->{ws_client}->write(JSON::to_json({@_}));
 }
 
+sub find_channel_or_group_id {
+	my $self = shift;
+	my ($name) = @_;
+	my $id = $self->{info}->_find_channel_or_group_id($name);
+	$id ||= $self->_refetch_channel_id($name);
+	$id ||= $self->_refetch_group_id($name) or die "There are no channels or groups of such name: $name";
+	return $id;
+}
+
+sub _refetch_channel_id {
+	my $self = shift;
+	my ($name) = @_;
+	$self->_refetch_channels;
+	return $self->{info}->_find_channel_or_group_id($name);
+}
+
+sub _refetch_group_id {
+	my $self = shift;
+	my ($name) = @_;
+	$self->_refetch_groups;
+	return $self->{info}->_find_channel_or_group_id($name);
+}
+
+sub find_channel_or_group_name {
+	my $self = shift;
+	my ($id) = @_;
+	my $name = $self->{info}->_find_channel_or_group_name($id);
+	$name ||= $self->_refetch_channel_name($id);
+	$name ||= $self->_refetch_group_name($id) or die "There are no channels or groups of such id: $id";
+	return $name;
+}
+
+sub _refetch_channel_name {
+	my $self = shift;
+	my ($id) = @_;
+	$self->_refetch_channels;
+	return $self->{info}->_find_channel_or_group_name($id);
+}
+
+sub _refetch_group_name {
+	my $self = shift;
+	my ($id) = @_;
+	$self->_refetch_groups;
+	return $self->{info}->_find_channel_or_group_name($id);
+}
+
+sub _refetch_channels {
+	my $self = shift;
+	my $res = $ua->request(GET "https://slack.com/api/channel.list?token=$self->{token}");
+	eval {
+		$self->{info}->{channels} = Slack::RTM::Bot::Information::_parse_channels(JSON::from_json($res->content));
+	};
+	if ($@) {
+		die 'response fail:'.Dumper $res->content;
+	}
+}
+
+sub _refetch_groups {
+	my $self = shift;
+	my $res = $ua->request(GET "https://slack.com/api/groups.list?token=$self->{token}");
+	eval {
+		$self->{info}->{groups} = Slack::RTM::Bot::Information::_parse_groups(JSON::from_json($res->content));
+	};
+	if ($@) {
+		die 'response fail:'.Dumper $res->content;
+	}
+}
+
+sub find_user_name {
+	my $self = shift;
+	my ($id) = @_;
+	my $name = $self->{info}->_find_user_name($id);
+	$name ||= $self->_refetch_user_name($id) or die "There are no users of such id: $id";
+	return $name;
+}
+
+sub _refetch_user_id {
+	my $self = shift;
+	my ($name) = @_;
+	$self->_refetch_users;
+	return $self->{info}->_find_user_id($name);
+}
+
+sub _refetch_user_name {
+	my $self = shift;
+	my ($id) = @_;
+	$self->_refetch_users;
+	return $self->{info}->_find_user_name($id);
+}
+
+sub _refetch_users {
+	my $self = shift;
+	my $res = $ua->request(GET 'https://slack.com/api/users.list', [ token => $self->{token} ]);
+	eval {
+		$self->{info}->{users} = Slack::RTM::Bot::Information::_parse_users(JSON::from_json($res->content));
+	};
+	if ($@) {
+		die 'response fail:'.Dumper $res->content;
+	}
+}
+
 sub _listen {
 	my $self = shift;
 	my ($buffer) = @_;
@@ -137,9 +238,22 @@ sub _listen {
 		$self->{info}->{url} = $buffer_obj->{url};
 	}
 
+	my ($user, $channel);
+	if ($buffer_obj->{user} && !ref($buffer_obj->{user})) {
+		$user = $self->find_user_name($buffer_obj->{user});
+		$user ||= $self->_refetch_user_name($buffer_obj->{user});
+		die "There are no users of such id: $buffer_obj->{user}" unless $user;
+	}
+	if ($buffer_obj->{channel} && !ref($buffer_obj->{channel})) {
+		$channel = $self->find_channel_or_group_name($buffer_obj->{channel});
+		$channel ||= $self->_refetch_channel_name($buffer_obj->{channel});
+		$channel ||= $self->_refetch_group_name($buffer_obj->{channel});
+		die "There are no channels or groups of such id: $buffer_obj->{user}" unless $user;
+	}
 	my $response = Slack::RTM::Bot::Response->new(
-		buffer => $buffer_obj,
-		info   => $self->{info}
+		buffer  => $buffer_obj,
+		user    => $user,
+		channel => $channel
 	);
 ACTION: for my $action(@{$self->{actions}}){
 		for my $key(keys %{$action->{events}}){
