@@ -16,7 +16,7 @@ my $info = Slack::RTM::Bot::Information->new(
 
 subtest 'find_user', sub {
 	is $info->_find_user_name('U123'), 'User', 'find user id.';
-	dies_ok {$info->_find_user_name('Undefined User')}
+	is $info->_find_user_name('Undefined User'), undef, 'find undefined user id';
 };
 
 subtest 'find_public_channel', sub {
@@ -38,13 +38,11 @@ subtest 'find_private_channel', sub {
 subtest 'find_channel', sub {
 	is $info->_find_channel_or_group_id('Public Channel'), 'C123', 'find public channel id.';
 	is $info->_find_channel_or_group_id('Private Channel'), 'G123', 'find private channel id.';
-
-	dies_ok {$info->_find_channel_or_group_id('Undefined Channel')}
+	is $info->_find_channel_or_group_id('Undefined Channel'), undef, 'find undefined channel id';
 
 	is $info->_find_channel_or_group_name('C123'), 'Public Channel', 'find public channel name.';
 	is $info->_find_channel_or_group_name('G123'), 'Private Channel', 'find private channel name.';
-
-	dies_ok {$info->_find_channel_or_group_name('U123')};
+	is $info->_find_channel_or_group_name('U123'), undef, 'find undefined channel name';
 };
 
 done_testing;
