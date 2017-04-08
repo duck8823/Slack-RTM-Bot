@@ -2,6 +2,10 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+1.04 2017-04-08T03:30:26Z
+
+   - Fix dying when response to new channel/group
+
 1.03 2017-04-05T23:11:07Z
 
    - Fix a bug that zombies spawn when stop_RTM
