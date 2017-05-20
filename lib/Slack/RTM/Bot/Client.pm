@@ -248,7 +248,7 @@ sub _listen {
 		$channel = $self->find_channel_or_group_name($buffer_obj->{channel});
 		$channel ||= $self->_refetch_channel_name($buffer_obj->{channel});
 		$channel ||= $self->_refetch_group_name($buffer_obj->{channel});
-		die "There are no channels or groups of such id: $buffer_obj->{user}" unless $user;
+		die "There are no channels or groups of such id: $buffer_obj->{channel}" unless $channel;
 	}
 	my $response = Slack::RTM::Bot::Response->new(
 		buffer  => $buffer_obj,
