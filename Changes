@@ -2,6 +2,10 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+1.06 2018-12-29T14:19:45Z
+
+   - Fix a bug that spawn zombies without stop_RTM
+
 1.05 2017-05-20T05:01:16Z
 
    - Fix channel or group not found
