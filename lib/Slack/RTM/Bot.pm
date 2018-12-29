@@ -266,6 +266,7 @@ C<$callback> is handed JSON object of message received from Slack.
 
 It start Real Time Messaging API.
 C<$callback> will be executed when establish connection.
+C<start_RTM> make child process. Thus, you must call C<stop_RTM> if you want to kill child processes before stop main process.
 
 =head2 stop_RTM
 
