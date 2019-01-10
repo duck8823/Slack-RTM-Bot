@@ -171,7 +171,7 @@ sub _refetch_group_name {
 
 sub _refetch_channels {
 	my $self = shift;
-	my $res = $ua->request(GET "https://slack.com/api/channel.list?token=$self->{token}");
+	my $res = $ua->request(GET "https://slack.com/api/channels.list?token=$self->{token}");
 	eval {
 		$self->{info}->{channels} = Slack::RTM::Bot::Information::_parse_channels(JSON::from_json($res->content));
 	};
