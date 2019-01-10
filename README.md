@@ -56,7 +56,7 @@ The `\%event` key is equal to a key of json received from slack, and value is es
     method start_RTM($callback)
 
 It start Real Time Messaging API.
-`$callback` will be executed when establish connection.  
+`$callback` will be executed when establish connection.
 `start_RTM` make child process. Thus, you must call `stop_RTM` if you want to kill child processes before stop main process.
 
 ## stop\_RTM
