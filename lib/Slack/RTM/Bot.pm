@@ -182,7 +182,7 @@ sub say {
 		subtype => 'bot_message',
 		bot_id  => $self->{client}->{info}->{self}->{id},
 		%$args,
-		channel => $self->{client}->find_channel_or_group_id($args->{channel})
+		channel => $self->{client}->find_conversation_id($args->{channel})
 	})."\n";
 	print WRITEH $request;
 }

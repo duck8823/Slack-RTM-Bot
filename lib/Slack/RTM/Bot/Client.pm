@@ -123,68 +123,41 @@ sub write {
 	$self->{ws_client}->write(JSON::to_json({@_}));
 }
 
-sub find_channel_or_group_id {
+sub find_conversation_id {
 	my $self = shift;
 	my ($name) = @_;
-	my $id = $self->{info}->_find_channel_or_group_id($name);
-	$id ||= $self->_refetch_channel_id($name);
-	$id ||= $self->_refetch_group_id($name) or die "There are no channels or groups of such name: $name";
+	my $id = $self->{info}->_find_conversation_id($name);
+	$id ||= $self->_refetch_conversation_id($name) or die "There are no conversations of such name: $name";
 	return $id;
 }
 
-sub _refetch_channel_id {
+sub _refetch_conversation_id {
 	my $self = shift;
 	my ($name) = @_;
-	$self->_refetch_channels;
-	return $self->{info}->_find_channel_or_group_id($name);
+	$self->_refetch_conversations;
+	return $self->{info}->_find_conversation_id($name);
 }
 
-sub _refetch_group_id {
-	my $self = shift;
-	my ($name) = @_;
-	$self->_refetch_groups;
-	return $self->{info}->_find_channel_or_group_id($name);
-}
-
-sub find_channel_or_group_name {
+sub find_conversation_name {
 	my $self = shift;
 	my ($id) = @_;
-	my $name = $self->{info}->_find_channel_or_group_name($id);
-	$name ||= $self->_refetch_channel_name($id);
-	$name ||= $self->_refetch_group_name($id) or die "There are no channels or groups of such id: $id";
+	my $name = $self->{info}->_find_conversation_name($id);
+	$name ||= $self->_refetch_conversation_name($id) or die "There are no conversations of such id: $id";
 	return $name;
 }
 
-sub _refetch_channel_name {
+sub _refetch_conversation_name {
 	my $self = shift;
 	my ($id) = @_;
-	$self->_refetch_channels;
-	return $self->{info}->_find_channel_or_group_name($id);
+	$self->_refetch_conversations;
+	return $self->{info}->_find_conversation_name($id);
 }
 
-sub _refetch_group_name {
+sub _refetch_conversations {
 	my $self = shift;
-	my ($id) = @_;
-	$self->_refetch_groups;
-	return $self->{info}->_find_channel_or_group_name($id);
-}
-
-sub _refetch_channels {
-	my $self = shift;
-	my $res = $ua->request(GET "https://slack.com/api/channels.list?token=$self->{token}");
+	my $res = $ua->request(GET "https://slack.com/api/conversations.list?token=$self->{token}");
 	eval {
-		$self->{info}->{channels} = Slack::RTM::Bot::Information::_parse_channels(JSON::from_json($res->content));
-	};
-	if ($@) {
-		die 'response fail:'.Dumper $res->content;
-	}
-}
-
-sub _refetch_groups {
-	my $self = shift;
-	my $res = $ua->request(GET "https://slack.com/api/groups.list?token=$self->{token}");
-	eval {
-		$self->{info}->{groups} = Slack::RTM::Bot::Information::_parse_groups(JSON::from_json($res->content));
+		$self->{info}->{channels} = Slack::RTM::Bot::Information::_parse_conversations(JSON::from_json($res->content));
 	};
 	if ($@) {
 		die 'response fail:'.Dumper $res->content;
@@ -245,10 +218,9 @@ sub _listen {
 		die "There are no users of such id: $buffer_obj->{user}" unless $user;
 	}
 	if ($buffer_obj->{channel} && !ref($buffer_obj->{channel})) {
-		$channel = $self->find_channel_or_group_name($buffer_obj->{channel});
-		$channel ||= $self->_refetch_channel_name($buffer_obj->{channel});
-		$channel ||= $self->_refetch_group_name($buffer_obj->{channel});
-		die "There are no channels or groups of such id: $buffer_obj->{channel}" unless $channel;
+		$channel = $self->find_conversation_name($buffer_obj->{channel});
+		$channel ||= $self->_refetch_conversation_name($buffer_obj->{channel});
+		die "There are no conversations of such id: $buffer_obj->{channel}" unless $channel;
 	}
 	my $response = Slack::RTM::Bot::Response->new(
 		buffer  => $buffer_obj,

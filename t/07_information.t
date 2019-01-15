@@ -9,40 +9,19 @@ use Slack::RTM::Bot;
 local $SIG{__WARN__} = sub { fail shift };
 
 my $info = Slack::RTM::Bot::Information->new(
-	channels => [ { id => 'C123', name => 'Public Channel' } ],
+	channels => [ { id => 'C123', name => 'Conversation' } ],
 	users    => [ { id => 'U123', name => 'User' } ],
-	groups   => [ { id => 'G123', name => 'Private Channel' } ]
 );
+
+subtest 'find_conversation', sub {
+	is $info->_find_conversation_id('Conversation'), 'C123', 'find conversation id.';
+	is $info->_find_conversation_name('C123'), 'Conversation', 'find conversation name.';
+};
 
 subtest 'find_user', sub {
 	is $info->_find_user_name('U123'), 'User', 'find user id.';
 	is $info->_find_user_name('Undefined User'), undef, 'find undefined user id';
 };
 
-subtest 'find_public_channel', sub {
-	is $info->_find_channel_id('Public Channel'), 'C123', 'find public channel id.';
-	is $info->_find_channel_name('C123'), 'Public Channel', 'find public channel name.';
-
-	is $info->_find_channel_id('Private Channel'), undef, 'find undefined channel id.';
-	is $info->_find_channel_name('G123'), undef, 'find undefined channel name.';
-};
-
-subtest 'find_private_channel', sub {
-	is $info->_find_group_id('Private Channel'), 'G123', 'find private channel id.';
-	is $info->_find_group_name('G123'), 'Private Channel', 'find private channel name.';
-
-	is $info->_find_group_id('Public Channel'), undef, 'find undefined channel id.';
-	is $info->_find_group_name('C123'), undef, 'find undefined channel name.';
-};
-
-subtest 'find_channel', sub {
-	is $info->_find_channel_or_group_id('Public Channel'), 'C123', 'find public channel id.';
-	is $info->_find_channel_or_group_id('Private Channel'), 'G123', 'find private channel id.';
-	is $info->_find_channel_or_group_id('Undefined Channel'), undef, 'find undefined channel id';
-
-	is $info->_find_channel_or_group_name('C123'), 'Public Channel', 'find public channel name.';
-	is $info->_find_channel_or_group_name('G123'), 'Private Channel', 'find private channel name.';
-	is $info->_find_channel_or_group_name('U123'), undef, 'find undefined channel name';
-};
 
 done_testing;
