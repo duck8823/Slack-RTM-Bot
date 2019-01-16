@@ -38,7 +38,6 @@ sub _find_conversation_id {
 	my $conversations = $self->{channels};
 
 	for my $key (keys %{$conversations}){
-		print "$key ".$conversations->{$key}->{name}."\n";
 		if($name eq $conversations->{$key}->{name}){
 			return $conversations->{$key}->{id};
 		}
