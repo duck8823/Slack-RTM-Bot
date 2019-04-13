@@ -44,9 +44,9 @@ sub connect {
 		$content = JSON::from_json($res->content);
 	};
 	if ($@) {
-		die 'response fail:'.Dumper $res->content;
+		die 'connect response fail:'.Dumper $res->content;
 	}
-	die 'response fail: '.$res->content unless ($content->{ok});
+	die 'connect response fail: '.$res->content unless ($content->{ok});
 
 	$self->{info} = Slack::RTM::Bot::Information->new(%{$content});
 	$res = $ua->request(POST 'https://slack.com/api/im.list', [ token => $token ]);
@@ -54,9 +54,9 @@ sub connect {
 		$content = JSON::from_json($res->content);
 	};
 	if ($@) {
-		die 'response fail:'.Dumper $res->content;
+		die 'connect response fail:'.Dumper $res->content;
 	}
-	die 'response fail: '.$res->content unless ($content->{ok});
+	die 'connect response fail: '.$res->content unless ($content->{ok});
 
 	for my $im (@{$content->{ims}}) {
 		my $name = $self->{info}->_find_user_name($im->{user});
@@ -155,12 +155,12 @@ sub _refetch_conversation_name {
 
 sub _refetch_conversations {
 	my $self = shift;
-	my $res = $ua->request(GET "https://slack.com/api/conversations.list?token=$self->{token}");
+	my $res = $ua->request(GET "https://slack.com/api/conversations.list?limit=999999999&type=public_channel,private_channel,mpim,im&token=$self->{token}");
 	eval {
 		$self->{info}->{channels} = Slack::RTM::Bot::Information::_parse_conversations(JSON::from_json($res->content));
 	};
 	if ($@) {
-		die 'response fail:'.Dumper $res->content;
+		die '_refetch_conversations response fail:'.Dumper $res->content;
 	}
 }
 
@@ -188,12 +188,12 @@ sub _refetch_user_name {
 
 sub _refetch_users {
 	my $self = shift;
-	my $res = $ua->request(GET 'https://slack.com/api/users.list', [ token => $self->{token} ]);
+	my $res = $ua->request(GET "https://slack.com/api/users.list?limit=999999999&token=$self->{token}");
 	eval {
 		$self->{info}->{users} = Slack::RTM::Bot::Information::_parse_users(JSON::from_json($res->content));
 	};
 	if ($@) {
-		die 'response fail:'.Dumper $res->content;
+		die '_refetch_users response fail:'.Dumper $res->content;
 	}
 }
 
