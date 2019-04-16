@@ -155,7 +155,7 @@ sub _refetch_conversation_name {
 
 sub _refetch_conversations {
 	my $self = shift;
-	my $res = $ua->request(GET "https://slack.com/api/conversations.list?limit=999999999&type=public_channel,private_channel,mpim,im&token=$self->{token}");
+	my $res = $ua->request(GET "https://slack.com/api/conversations.list?limit=999999999&types=public_channel,private_channel,mpim,im&token=$self->{token}");
 	eval {
 		$self->{info}->{channels} = Slack::RTM::Bot::Information::_parse_conversations(JSON::from_json($res->content));
 	};
