@@ -2,6 +2,10 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+1.10 2019-04-17T11:56:22Z
+
+   - Fix parameter key
+
 1.09 2019-04-13T10:17:17Z
 
    - Clarify a few die() errors
