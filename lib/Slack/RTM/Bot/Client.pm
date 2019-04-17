@@ -166,7 +166,7 @@ sub _refetch_conversations {
 				$conversations->{$conversation->{id}} = $conversation;
 			}
 			$cursor = $args->{response_metadata}->{next_cursor};
-		} until ($cursor eq "")
+		} until ($cursor eq "");
 		$self->{info}->{channels} = $conversations;
        };
        if ($@) {
@@ -198,13 +198,23 @@ sub _refetch_user_name {
 
 sub _refetch_users {
 	my $self = shift;
-	my $res = $ua->request(GET "https://slack.com/api/users.list?limit=999999999&token=$self->{token}");
+	my $res;
 	eval {
-		$self->{info}->{users} = Slack::RTM::Bot::Information::_parse_users(JSON::from_json($res->content));
-	};
-	if ($@) {
-		die '_refetch_users response fail:'.Dumper $res->content;
-	}
+		my $users = {};
+		my $cursor = "";
+		do {
+			$res = $ua->request(GET "https://slack.com/api/users.list?token=$self->{token}&cursor=$cursor");
+			my $args = JSON::from_json($res->content);
+			for my $user (@{$args->{users}}) {
+				$users->{$user->{id}} = $user;
+			}
+			$cursor = $args->{response_metadata}->{next_cursor};
+		} until ($cursor eq "");
+		$self->{info}->{users} = $users;
+       };
+       if ($@) {
+	       die '_refetch_users response fail:'.Dumper $res->content;
+       }
 }
 
 sub _listen {
