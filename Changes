@@ -2,6 +2,11 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+1.11 2019-04-27T00:39:51Z
+
+   - #29 Slack changed the limit maximum 
+   - #28 Added missing license meta
+
 1.10 2019-04-17T11:56:22Z
 
    - Fix parameter key
