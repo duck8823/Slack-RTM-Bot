@@ -155,13 +155,23 @@ sub _refetch_conversation_name {
 
 sub _refetch_conversations {
 	my $self = shift;
-	my $res = $ua->request(GET "https://slack.com/api/conversations.list?limit=999999999&types=public_channel,private_channel,mpim,im&token=$self->{token}");
+	my $res;
 	eval {
-		$self->{info}->{channels} = Slack::RTM::Bot::Information::_parse_conversations(JSON::from_json($res->content));
-	};
-	if ($@) {
-		die '_refetch_conversations response fail:'.Dumper $res->content;
-	}
+		my $conversations = {};
+		my $cursor = "";
+		do {
+			$res = $ua->request(GET "https://slack.com/api/conversations.list?types=public_channel,private_channel&token=$self->{token}&cursor=$cursor&limit=1000");
+			my $args = JSON::from_json($res->content);
+			for my $conversation (@{$args->{channels}}) {
+				$conversations->{$conversation->{id}} = $conversation;
+			}
+			$cursor = $args->{response_metadata}->{next_cursor};
+		} until ($cursor eq "");
+		$self->{info}->{channels} = $conversations;
+       };
+       if ($@) {
+	       die '_refetch_conversations response fail:'.Dumper $res->content;
+       }
 }
 
 sub find_user_name {
@@ -188,13 +198,23 @@ sub _refetch_user_name {
 
 sub _refetch_users {
 	my $self = shift;
-	my $res = $ua->request(GET "https://slack.com/api/users.list?limit=999999999&token=$self->{token}");
+	my $res;
 	eval {
-		$self->{info}->{users} = Slack::RTM::Bot::Information::_parse_users(JSON::from_json($res->content));
-	};
-	if ($@) {
-		die '_refetch_users response fail:'.Dumper $res->content;
-	}
+		my $users = {};
+		my $cursor = "";
+		do {
+			$res = $ua->request(GET "https://slack.com/api/users.list?token=$self->{token}&cursor=$cursor");
+			my $args = JSON::from_json($res->content);
+			for my $user (@{$args->{users}}) {
+				$users->{$user->{id}} = $user;
+			}
+			$cursor = $args->{response_metadata}->{next_cursor};
+		} until ($cursor eq "");
+		$self->{info}->{users} = $users;
+       };
+       if ($@) {
+	       die '_refetch_users response fail:'.Dumper $res->content;
+       }
 }
 
 sub _listen {
