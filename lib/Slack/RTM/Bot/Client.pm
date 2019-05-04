@@ -142,7 +142,8 @@ sub find_conversation_name {
 	my $self = shift;
 	my ($id) = @_;
 	my $name = $self->{info}->_find_conversation_name($id);
-	$name ||= $self->_refetch_conversation_name($id) or die "There are no conversations of such id: $id";
+	$name ||= $self->_refetch_conversation_name($id) or warn "There are no conversations of such id: $id";
+	$name ||= $id;
 	return $name;
 }
 
@@ -178,7 +179,8 @@ sub find_user_name {
 	my $self = shift;
 	my ($id) = @_;
 	my $name = $self->{info}->_find_user_name($id);
-	$name ||= $self->_refetch_user_name($id) or die "There are no users of such id: $id";
+	$name ||= $self->_refetch_user_name($id) or warn "There are no users of such id: $id";
+	$name ||= $id;
 	return $name;
 }
 
@@ -234,13 +236,12 @@ sub _listen {
 	my ($user, $channel);
 	if ($buffer_obj->{user} && !ref($buffer_obj->{user})) {
 		$user = $self->find_user_name($buffer_obj->{user});
-		$user ||= $self->_refetch_user_name($buffer_obj->{user});
-		die "There are no users of such id: $buffer_obj->{user}" unless $user;
+		warn "There are no users of such id: $buffer_obj->{user}" unless $user;
 	}
 	if ($buffer_obj->{channel} && !ref($buffer_obj->{channel})) {
 		$channel = $self->find_conversation_name($buffer_obj->{channel});
-		$channel ||= $self->_refetch_conversation_name($buffer_obj->{channel});
-		die "There are no conversations of such id: $buffer_obj->{channel}" unless $channel;
+		warn "There are no conversations of such id: $buffer_obj->{channel}" unless $channel;
+
 	}
 	my $response = Slack::RTM::Bot::Response->new(
 		buffer  => $buffer_obj,
