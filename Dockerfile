@@ -11,8 +11,7 @@ RUN cpanm --installdeps .
 
 COPY . .
 
-RUN perl Build.PL && \
-    ./Build
+RUN make build
 
-ENTRYPOINT ["./Build"]
+ENTRYPOINT ["make"]
 CMD ["test"]
