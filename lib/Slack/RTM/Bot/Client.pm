@@ -49,18 +49,17 @@ sub connect {
 	die 'connect response fail: '.$res->content unless ($content->{ok});
 
 	$self->{info} = Slack::RTM::Bot::Information->new(%{$content});
-	$res = $ua->request(POST 'https://slack.com/api/im.list', [ token => $token ]);
+	$res = $ua->request(POST 'https://slack.com/api/conversations.list ', [ token => $token ]);
 	eval {
-		$content = JSON::from_json($res->content);
+		$content = JSON::decode_json($res->content);
 	};
 	if ($@) {
 		die 'connect response fail:'.Dumper $res->content;
 	}
 	die 'connect response fail: '.$res->content unless ($content->{ok});
 
-	for my $im (@{$content->{ims}}) {
-		my $name = $self->{info}->_find_user_name($im->{user});
-		$self->{info}->{channels}->{$im->{id}} = { %$im, name => '@'.$name };
+	for my $im (@{$content->{channels}}) {
+		$self->{info}->{channels}->{$im->{id}} = { %$im, name => '@'.$im->{name} };
 	}
 	$self->_connect;
 }
@@ -120,7 +119,7 @@ sub read {
 
 sub write {
 	my $self = shift;
-	$self->{ws_client}->write(JSON::to_json({@_}));
+	$self->{ws_client}->write(JSON::encode_json({@_}));
 }
 
 sub find_conversation_id {
