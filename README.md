@@ -38,7 +38,7 @@ Slack::RTM::Bot - This is a perl module helping to create slack bot with Real Ti
 
     method new(token => $token)
 
-Constructs a [Slack::RTM::Bot](https://metacpan.org/pod/Slack::RTM::Bot) object.
+Constructs a [Slack::RTM::Bot](https://metacpan.org/pod/Slack%3A%3ARTM%3A%3ABot) object.
 
 The `$token` is the slack API token.
 

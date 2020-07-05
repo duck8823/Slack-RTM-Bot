@@ -2,6 +2,10 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+1.13 2020-07-05T15:03:42Z
+
+  - #35 Use conversations.list
+
 1.12 2019-05-04T01:44:52Z
 
    - #30 Avoid getting killed by a bug in Slack.
