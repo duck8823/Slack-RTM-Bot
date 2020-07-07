@@ -1,8 +1,9 @@
 name: test
 on: push
 jobs:
-  lint:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - uses: .
+      - uses: actions/checkout@v2
+      - name: test
+        uses: ./.
