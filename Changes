@@ -2,6 +2,19 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+1.13 2020-07-05T15:03:42Z
+
+  - #35 Use conversations.list
+
+1.12 2019-05-04T01:44:52Z
+
+   - #30 Avoid getting killed by a bug in Slack.
+
+1.11 2019-04-27T00:39:51Z
+
+   - #29 Slack changed the limit maximum 
+   - #28 Added missing license meta
+
 1.10 2019-04-17T11:56:22Z
 
    - Fix parameter key
