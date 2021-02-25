@@ -6,6 +6,8 @@ use warnings;
 use JSON;
 use Encode;
 use Data::Dumper;
+use Data::Printer;
+
 
 use HTTP::Request::Common qw(POST GET);
 use LWP::UserAgent;
@@ -24,6 +26,7 @@ my $ua = LWP::UserAgent->new(
 	}
 );
 $ua->agent('Slack::RTM::Bot');
+$ua->timeout(120);
 
 sub new {
 	my $pkg = shift;
@@ -38,15 +41,15 @@ sub connect {
 	my $self = shift;
 	my ($token) = @_;
 
-	my $res = $ua->request(POST 'https://slack.com/api/rtm.start', [ token => $token ]);
+	my $res = $ua->request(POST 'https://slack.com/api/rtm.connect', [ token => $token ]);
 	my $content;
 	eval {
 		$content = JSON::from_json($res->content);
 	};
 	if ($@) {
-		die 'connect response fail:'.Dumper $res->content;
+		die 'connect response fail 00:'.Dumper $res->content;
 	}
-	die 'connect response fail: '.$res->content unless ($content->{ok});
+	die 'connect response fail 1: '.$res->content unless ($content->{ok});
 
 	$self->{info} = Slack::RTM::Bot::Information->new(%{$content});
 	$res = $ua->request(POST 'https://slack.com/api/im.list', [ token => $token ]);
@@ -54,9 +57,9 @@ sub connect {
 		$content = JSON::from_json($res->content);
 	};
 	if ($@) {
-		die 'connect response fail:'.Dumper $res->content;
+		die 'connect response fail 01:'.Dumper $res->content;
 	}
-	die 'connect response fail: '.$res->content unless ($content->{ok});
+	die 'connect response fail 2: '.$res->content unless ($content->{ok});
 
 	for my $im (@{$content->{ims}}) {
 		my $name = $self->{info}->_find_user_name($im->{user});
@@ -94,7 +97,9 @@ sub _connect {
 			my ($cli, $error) = @_;
 			print STDERR 'error: '. $error;
 		});
-	$ws_client->connect;
+	print "preconnect\n";
+	p $ws_client->connect;
+	print "postconnect\n";
 
 	$self->{ws_client} = $ws_client;
 	$self->{socket} = $socket;
