@@ -187,29 +187,6 @@ sub say {
 	print WRITEH $request;
 }
 
-sub sayid {
-	my $self = shift;
-	my $args;
-	if(!@_ || scalar @_ % 2 != 0) {
-		die "argument is not a HASH or ARRAY."
-	}
-	$args = {@_};
-	if(!defined $args->{text} || !defined $args->{channel}) {
-		die "argument needs keys 'text' and 'channel'.";
-	}
-
-	die "RTM not started." unless $self->{client};
-
-	my $request = JSON::to_json({
-		type    => 'message',
-		subtype => 'bot_message',
-		bot_id  => $self->{client}->{info}->{self}->{id},
-		%$args,
-		channel => $args->{channel}
-	})."\n";
-	print WRITEH $request;
-}
-
 sub on {
 	my $self = shift;
 	die "RTM already started." if $self->{info};
