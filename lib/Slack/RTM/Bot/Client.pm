@@ -206,10 +206,12 @@ sub _refetch_users {
 		do {
 			$res = $ua->request(GET "https://slack.com/api/users.list?token=$self->{token}&cursor=$cursor");
 			my $args = JSON::from_json($res->content);
-			for my $user (@{$args->{users}}) {
+			for my $user (@{$args->{members}}) {
 				$users->{$user->{id}} = $user;
 			}
-			$cursor = $args->{response_metadata}->{next_cursor};
+			if (defined($args->{response_metadata}->{next_cursor})) {
+				$cursor = $args->{response_metadata}->{next_cursor};
+			}
 		} until ($cursor eq "");
 		$self->{info}->{users} = $users;
        };
