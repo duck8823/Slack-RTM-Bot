@@ -37,7 +37,7 @@ sub connect {
 	my $self = shift;
 	my ($token) = @_;
 
-	my $res = $ua->request(POST 'https://slack.com/api/rtm.start', [ token => $token ]);
+	my $res = $ua->request(POST 'https://slack.com/api/rtm.connect', [ token => $token ]);
 	my $content;
 	eval {
 		$content = JSON::from_json($res->content);
