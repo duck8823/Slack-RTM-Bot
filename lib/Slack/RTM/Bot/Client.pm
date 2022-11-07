@@ -6,11 +6,6 @@ use warnings;
 use JSON;
 use Encode;
 use Data::Dumper;
-<<<<<<< HEAD
-
-=======
->>>>>>> 5b7eacee6f026f139a30a76c1bb985e5fab4e12a
-
 use HTTP::Request::Common qw(POST GET);
 use LWP::UserAgent;
 use LWP::Protocol::https;
