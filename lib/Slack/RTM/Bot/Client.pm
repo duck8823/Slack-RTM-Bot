@@ -6,7 +6,10 @@ use warnings;
 use JSON;
 use Encode;
 use Data::Dumper;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5b7eacee6f026f139a30a76c1bb985e5fab4e12a
 
 use HTTP::Request::Common qw(POST GET);
 use LWP::UserAgent;
@@ -39,13 +42,13 @@ sub connect {
 	my $self = shift;
 	my ($token) = @_;
 
-	my $res = $ua->request(POST 'https://slack.com/api/rtm.connect', [ token => $token ]);
+	my $res = $ua->request(POST 'https://slack.com/api/rtm.start', [ token => $token ]);
 	my $content;
 	eval {
 		$content = JSON::from_json($res->content);
 	};
 	if ($@) {
-		die 'connect response fail 00:'.Dumper $res->content;
+		die 'connect response fail:'.Dumper $res->content;
 	}
 	die 'connect response fail 01: '.$res->content unless ($content->{ok});
 
@@ -156,23 +159,31 @@ sub _refetch_conversation_name {
 
 sub _refetch_conversations {
 	my $self = shift;
-	my $res;
-	eval {
-		my $conversations = {};
-		my $cursor = "";
-		do {
-			$res = $ua->request(GET "https://slack.com/api/conversations.list?types=public_channel,private_channel&token=$self->{token}&cursor=$cursor&limit=1000");
-			my $args = JSON::from_json($res->content);
-			for my $conversation (@{$args->{channels}}) {
-				$conversations->{$conversation->{id}} = $conversation;
+	my $cursor = "";
+	do {
+		my $res = $ua->request(POST 'https://slack.com/api/conversations.list', [ token => $self->{token}, types => "public_channel,private_channel,im", cursor => $cursor ]);
+		my $content;
+		eval {
+			$content = JSON::decode_json($res->content);
+		};
+		if ($@) {
+			die 'connect response fail:' . Dumper $res->content;
+		}
+		die 'connect response fail: ' . $res->content unless ($content->{ok});
+
+		for my $channel (@{$content->{channels}}) {
+			if ($channel->{is_im}) {
+				my $user_id = $channel->{user};
+				my $name = $self->{info}->_find_user_name($user_id);
+				$name ||= $self->_refetch_user_name($user_id) or warn "There are no users of such id: $user_id";
+				$self->{info}->{channels}->{$channel->{id}} = { %$channel, name => '@'.$name };
+				next;
 			}
-			$cursor = $args->{response_metadata}->{next_cursor};
-		} until ($cursor eq "");
-		$self->{info}->{channels} = $conversations;
-       };
-       if ($@) {
-	       die '_refetch_conversations response fail:'.Dumper $res->content;
-       }
+			$self->{info}->{channels}->{$channel->{id}} = $channel;
+		}
+
+		$cursor = $content->{response_metadata}->{next_cursor};
+	} until ($cursor eq "");
 }
 
 sub find_user_name {
