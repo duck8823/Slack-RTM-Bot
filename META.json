@@ -1,10 +1,10 @@
 {
    "abstract" : "This is a perl module helping to create slack bot with Real Time Messaging(RTM) API.",
    "author" : [
-      "Shunsuke Maeda"
+      "Shunsuke Maeda <duck8823@gmail.com>\r"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v3.1.10, CPAN::Meta::Converter version 2.150010",
+   "generated_by" : "Minilla/v3.1.20, CPAN::Meta::Converter version 2.150010",
    "license" : [
       "mit"
    ],
@@ -68,21 +68,23 @@
       "homepage" : "https://github.com/duck8823/Slack-RTM-Bot",
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/duck8823/Slack-RTM-Bot.git",
+         "url" : "https://github.com/duck8823/Slack-RTM-Bot.git",
          "web" : "https://github.com/duck8823/Slack-RTM-Bot"
       }
    },
-   "version" : "1.13",
+   "version" : "1.15",
    "x_contributors" : [
       "Matt Hallacy <mhallacy+github@haproxy.com>",
+      "Matt Hallacy <mhallacy@reflected.net>",
       "Mohammad S Anwar <mohammad.anwar@yahoo.com>",
       "Paulo Bu <pbu_98@yahoo.com>",
-      "Shunsuke Maeda <duck8823@gmail.com>",
       "Tomas Cohen Arazi <tomascohen@theke.io>",
       "dada <dada@perl.it>",
+      "kimjackson <kim.jackson@gmail.com>",
       "makamaka <makamaka.donzoko@gmail.com>",
+      "poptix <poptix@poptix.net>",
       "shmaeda <shmaeda@nig.ac.jp>"
    ],
-   "x_serialization_backend" : "JSON::PP version 4.04",
+   "x_serialization_backend" : "JSON::PP version 4.06",
    "x_static_install" : 1
 }

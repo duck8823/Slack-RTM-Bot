@@ -9,7 +9,7 @@ use POSIX qw/sys_wait_h/;
 use JSON;
 use Slack::RTM::Bot::Client;
 
-our $VERSION = "1.13";
+our $VERSION = "1.15";
 
 pipe(READH, WRITEH);
 select(WRITEH);$|=1;

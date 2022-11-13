@@ -2,6 +2,13 @@ Revision history for Perl extension Slack-RTM-Bot
 
 {{$NEXT}}
 
+1.15 2022-11-13T06:40:31Z
+
+  - #38 Users -> Members fix
+  - #40 Use rtm connect api
+  - #41 fix failed to send direct messages
+  - #42 Use rtm.connect instead of rtm.start
+
 1.13 2020-07-05T15:03:42Z
 
   - #35 Use conversations.list
