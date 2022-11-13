@@ -45,7 +45,7 @@ sub connect {
 	if ($@) {
 		die 'connect response fail:'.Dumper $res->content;
 	}
-	die 'connect response fail 01: '.$res->content unless ($content->{ok});
+	die 'connect response fail: '.$res->content unless ($content->{ok});
 
 	$self->{info} = Slack::RTM::Bot::Information->new(%{$content});
 	$self->_connect;
