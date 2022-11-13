@@ -45,21 +45,9 @@ sub connect {
 	if ($@) {
 		die 'connect response fail:'.Dumper $res->content;
 	}
-	die 'connect response fail 01: '.$res->content unless ($content->{ok});
+	die 'connect response fail: '.$res->content unless ($content->{ok});
 
 	$self->{info} = Slack::RTM::Bot::Information->new(%{$content});
-	$res = $ua->request(POST 'https://slack.com/api/conversations.list ', [ token => $token ]);
-	eval {
-		$content = JSON::decode_json($res->content);
-	};
-	if ($@) {
-		die 'connect response fail 02:'.Dumper $res->content;
-	}
-	die 'connect response fail 03: '.$res->content unless ($content->{ok});
-
-	for my $im (@{$content->{channels}}) {
-		$self->{info}->{channels}->{$im->{id}} = { %$im, name => '@'.$im->{name} };
-	}
 	$self->_connect;
 }
 
